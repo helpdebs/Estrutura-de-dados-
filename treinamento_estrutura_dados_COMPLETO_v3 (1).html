@@ -3,444 +3,574 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Treino de Esqueleto em C - Estrutura de Dados</title>
+  <title>Treinamento Completo - Estrutura de Dados Aulas 1, 2 e 3</title>
   <style>
     :root{
-      --bg:#11111f; --panel:#1b1b2c; --panel2:#24243a; --text:#f4f2ff; --muted:#c9c4ee;
-      --primary:#8f7aff; --primary2:#c084fc; --good:#3ddc97; --bad:#ff6b6b; --warn:#ffd166;
-      --line:rgba(255,255,255,.14); --chip:#30304a; --chip2:#223f36; --code:#0f1020;
-      --shadow:0 18px 50px rgba(0,0,0,.35); --radius:22px;
+      --bg:#0d0d18; --panel:#19192b; --panel2:#23243a; --card:#2d2d43;
+      --ink:#f5f3ff; --muted:#c9c4e5; --soft:#a79fcb;
+      --brand:#7c3aed; --brand2:#22c55e; --danger:#ef4444; --warn:#f59e0b;
+      --line:rgba(255,255,255,.14); --shadow:0 20px 70px rgba(0,0,0,.35);
+      --code:#10111f; --accent:#f8e08e;
+      --radius:24px;
     }
     *{box-sizing:border-box}
     html{scroll-behavior:smooth;overflow-x:hidden}
-    body{margin:0;min-height:100vh;min-height:100dvh;overflow-x:hidden;font-family:Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:radial-gradient(circle at 20% 0%, #30245e 0, transparent 32%), radial-gradient(circle at 90% 12%, #572b70 0, transparent 28%), var(--bg); color:var(--text); line-height:1.55}
-    header{position:sticky; top:0; z-index:20; backdrop-filter:blur(16px); background:rgba(17,17,31,.78); border-bottom:1px solid var(--line)}
-    .topbar{max-width:1200px; margin:auto; padding:16px 22px; display:flex; gap:16px; align-items:center; justify-content:space-between}
-    .brand{display:flex; align-items:center; gap:12px; min-width:0}
-    .logo{width:42px; height:42px; border-radius:15px; display:grid; place-items:center; background:linear-gradient(135deg,var(--primary),var(--primary2)); box-shadow:0 10px 25px rgba(143,122,255,.35); font-weight:900}
-    h1{font-size:clamp(1.25rem,2.4vw,2rem); margin:0; line-height:1.1}
-    .subtitle{font-size:.92rem; color:var(--muted); margin-top:4px}
-    .progressWrap{min-width:260px; text-align:right}
-    .bar{height:10px; background:rgba(255,255,255,.1); border-radius:999px; overflow:hidden; border:1px solid var(--line)}
-    .barFill{height:100%; width:0; background:linear-gradient(90deg,var(--good),var(--primary)); transition:.35s ease}
-    .progressText{font-size:.84rem; color:var(--muted); margin-top:6px}
-    main{max-width:1200px; margin:0 auto; padding:26px 22px 80px}
-    .hero{display:grid; grid-template-columns:1.15fr .85fr; gap:20px; align-items:stretch; margin:16px 0 24px}
-    .card{background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.025)); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow)}
-    .hero .card{padding:26px}
-    h2{font-size:clamp(1.45rem,3vw,2.4rem); margin:0 0 12px}
-    h3{font-size:1.25rem; margin:0 0 12px}
-    p{margin:0 0 12px}
-    .note{color:var(--muted)}
-    .grid2{display:grid; grid-template-columns:1fr 1fr; gap:14px}
-    .formula{display:grid; gap:8px; margin-top:18px}
-    .formula span{display:flex; gap:10px; align-items:flex-start; background:rgba(255,255,255,.06); border:1px solid var(--line); border-radius:15px; padding:10px 12px}
-    .num{flex:0 0 auto; width:25px; height:25px; display:grid; place-items:center; border-radius:9px; background:rgba(143,122,255,.22); color:#fff; font-weight:800}
-    .pillrow{display:flex; flex-wrap:wrap; gap:8px; margin-top:14px}
-    .pill{display:inline-flex; align-items:center; gap:6px; padding:7px 11px; border-radius:999px; background:rgba(143,122,255,.16); border:1px solid rgba(143,122,255,.34); color:#eee; font-size:.86rem}
-    .navLevels{display:flex; flex-wrap:wrap; gap:8px; margin:24px 0}
-    .levelBtn{border:1px solid var(--line); background:rgba(255,255,255,.06); color:var(--text); padding:10px 12px; border-radius:14px; cursor:pointer; transition:.2s ease; font-weight:700}
-    .levelBtn:hover{transform:translateY(-1px); border-color:rgba(143,122,255,.75)}
-    .levelBtn.locked{opacity:.45; cursor:not-allowed; filter:grayscale(.7)}
-    .levelBtn.done{background:rgba(61,220,151,.14); border-color:rgba(61,220,151,.4)}
-    .level{display:none; padding:24px; margin-bottom:24px}
-    .level.active{display:block; animation:fade .25s ease both}
-    @keyframes fade{from{opacity:0; transform:translateY(8px)}to{opacity:1; transform:translateY(0)}}
-    .levelHeader{display:flex; justify-content:space-between; gap:14px; align-items:flex-start; margin-bottom:20px}
-    .badge{display:inline-flex; align-items:center; padding:8px 12px; border-radius:999px; background:rgba(192,132,252,.16); border:1px solid rgba(192,132,252,.35); font-weight:800; color:#f5e9ff; white-space:nowrap}
-    .concepts{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px}
-    .concepts code, code.inline{background:rgba(255,255,255,.1); border:1px solid var(--line); padding:2px 7px; border-radius:8px; color:#fff}
-    .task{padding:20px; margin:16px 0; background:rgba(0,0,0,.18); border:1px solid var(--line); border-radius:20px}
-    .taskTop{display:flex; justify-content:space-between; gap:12px; align-items:start; margin-bottom:10px}
-    .taskType{font-size:.78rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); border:1px solid var(--line); border-radius:999px; padding:4px 8px}
-    .prompt{font-size:1.06rem; background:rgba(143,122,255,.08); border-left:4px solid var(--primary); padding:12px 14px; border-radius:12px; margin:10px 0 14px}
-    .instruction{color:var(--muted); margin-bottom:12px}
-    .chips{display:flex; flex-wrap:wrap; gap:9px; margin:12px 0}
-    button.chip{border:1px solid var(--line); background:var(--chip); color:var(--text); padding:9px 11px; border-radius:999px; cursor:pointer; font-weight:700; transition:.16s ease}
-    button.chip:hover{border-color:rgba(143,122,255,.8); transform:translateY(-1px)}
-    button.chip.selected{background:rgba(61,220,151,.17); border-color:rgba(61,220,151,.55)}
-    button.chip.used{opacity:.35; pointer-events:none}
-    .answerBox{min-height:54px; border:1px dashed rgba(255,255,255,.28); border-radius:16px; padding:10px; background:rgba(255,255,255,.04); margin:12px 0}
-    .answerBox .chip{background:rgba(143,122,255,.18); border-color:rgba(143,122,255,.45)}
-    textarea{width:100%; min-height:130px; resize:vertical; background:rgba(10,10,25,.78); color:var(--text); border:1px solid var(--line); border-radius:16px; padding:14px; font:500 1rem/1.5 Inter, system-ui, sans-serif; outline:none}
-    textarea:focus{border-color:rgba(143,122,255,.8); box-shadow:0 0 0 4px rgba(143,122,255,.14)}
-    .actions{display:flex; flex-wrap:wrap; gap:10px; margin-top:12px}
-    .btn{min-height:44px;border:1px solid var(--line); border-radius:14px; padding:10px 14px; cursor:pointer; font-weight:850; color:var(--text); background:rgba(255,255,255,.08); transition:.2s ease}
-    .btn:hover{transform:translateY(-1px); border-color:rgba(255,255,255,.32)}
-    .btn.primary{background:linear-gradient(135deg,rgba(143,122,255,.88),rgba(192,132,252,.88)); border-color:transparent}
-    .btn.good{background:rgba(61,220,151,.16); border-color:rgba(61,220,151,.45)}
-    .btn.warn{background:rgba(255,209,102,.16); border-color:rgba(255,209,102,.45)}
-    .feedback{display:none; margin-top:12px; border-radius:16px; padding:12px 14px; border:1px solid var(--line)}
-    .feedback.show{display:block}
-    .feedback.ok{background:rgba(61,220,151,.12); border-color:rgba(61,220,151,.42)}
-    .feedback.no{background:rgba(255,107,107,.11); border-color:rgba(255,107,107,.42)}
-    .feedback.hint{background:rgba(255,209,102,.1); border-color:rgba(255,209,102,.38)}
-    .score{display:flex; gap:10px; align-items:center; color:var(--muted); font-weight:700; margin-top:8px}
-    .mini{font-size:.88rem; color:var(--muted)}
-    .library{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:18px}
-    .libCard{padding:16px; border-radius:18px; background:rgba(255,255,255,.045); border:1px solid var(--line)}
-    .libCard ul{margin:8px 0 0; padding-left:18px; color:var(--muted)}
-    pre{white-space:pre-wrap; margin:12px 0 0; background:var(--code); border:1px solid var(--line); padding:14px; border-radius:16px; overflow:auto; color:#f7f7ff}
-    .kbd{font-family:ui-monospace,SFMono-Regular,Consolas,monospace; background:rgba(255,255,255,.11); padding:2px 6px; border-radius:7px; border:1px solid var(--line)}
-    .footerActions{display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between; margin-top:18px; padding-top:18px; border-top:1px solid var(--line)}
-    .toast{position:fixed; right:20px; bottom:20px; max-width:360px; background:#19192c; border:1px solid var(--line); box-shadow:var(--shadow); padding:14px 16px; border-radius:16px; display:none; z-index:50}
-    .toast.show{display:block; animation:fade .2s ease both}
-    .statusDot{width:10px;height:10px;border-radius:999px;background:var(--warn);display:inline-block}.statusDot.done{background:var(--good)}
-    @media(min-width:851px) and (max-width:1100px){
-      .topbar,main{padding-left:20px;padding-right:20px}
-      .hero{grid-template-columns:1fr 1fr;gap:16px}
-      .hero .card{padding:22px}
-      .level{padding:22px}
-      .task{padding:18px}
-      .library{grid-template-columns:repeat(2,minmax(0,1fr))}
+    body{margin:0;min-height:100vh;min-height:100dvh;overflow-x:hidden;background:radial-gradient(circle at 20% -10%,#392166 0,#151528 35%,#0d0d18 70%); color:var(--ink); font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height:1.58;}
+    a{color:#d8ccff}
+    .wrap{max-width:1180px;margin:0 auto;padding:28px 18px 80px}
+    header.hero{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:32px;padding:36px;background:linear-gradient(135deg,rgba(124,58,237,.28),rgba(34,197,94,.08)), var(--panel); box-shadow:var(--shadow)}
+    .badge{display:inline-flex;gap:8px;align-items:center;border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:7px 12px;color:#e9ddff;background:rgba(255,255,255,.07);font-size:.88rem}
+    h1{font-size:clamp(2rem,5vw,4.2rem);line-height:1.02;margin:18px 0 12px;letter-spacing:-.05em}
+    h2{font-size:clamp(1.6rem,3vw,2.6rem);line-height:1.12;margin:0 0 14px;letter-spacing:-.035em}
+    h3{font-size:1.35rem;margin:28px 0 8px;color:#fff}
+    h4{font-size:1.05rem;margin:18px 0 8px;color:#fff}
+    p{margin:10px 0;color:var(--muted)}
+    .lead{font-size:1.1rem;max-width:870px;color:#e7e1ff}
+    .grid{display:grid;gap:16px}
+    .grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}.grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .card{border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.025));border-radius:var(--radius);padding:22px;box-shadow:0 8px 30px rgba(0,0,0,.18)}
+    .mini{padding:14px 16px;border-radius:18px;background:rgba(255,255,255,.055);border:1px solid var(--line)}
+    .pill{display:inline-flex;align-items:center;gap:7px;padding:6px 10px;border-radius:999px;background:rgba(124,58,237,.16);border:1px solid rgba(124,58,237,.45);color:#e8ddff;font-weight:700;font-size:.8rem;margin:4px 6px 4px 0}
+    .pill.green{background:rgba(34,197,94,.13);border-color:rgba(34,197,94,.45);color:#d7ffe5}.pill.warn{background:rgba(245,158,11,.14);border-color:rgba(245,158,11,.45);color:#ffe9bd}.pill.red{background:rgba(239,68,68,.14);border-color:rgba(239,68,68,.45);color:#ffd0d0}
+    .toc{position:sticky;top:0;z-index:10;margin:18px 0 24px;background:rgba(13,13,24,.86);backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:22px;padding:12px;display:flex;gap:8px;overflow:auto}
+    .toc button{white-space:nowrap;border:0;border-radius:999px;padding:9px 13px;background:rgba(255,255,255,.08);color:var(--ink);cursor:pointer;font-weight:800}.toc button.locked{opacity:.45}.toc button.active{background:linear-gradient(135deg,var(--brand),#4f46e5)}
+    section.level{margin:28px 0;border:1px solid var(--line);border-radius:30px;background:rgba(20,20,34,.86);box-shadow:var(--shadow);overflow:hidden}.levelHead{padding:26px;border-bottom:1px solid var(--line);background:linear-gradient(135deg,rgba(124,58,237,.2),rgba(255,255,255,.03));display:flex;gap:18px;justify-content:space-between;align-items:flex-start}.levelBody{padding:26px}.lockedBox{padding:34px;text-align:center}.lockIcon{font-size:2.5rem}
+    .meter{height:12px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;border:1px solid var(--line)}.bar{height:100%;width:0%;background:linear-gradient(90deg,var(--brand),var(--brand2));transition:.35s}.status{font-weight:900;color:#d7ffe5}
+    .quote{border-left:4px solid var(--brand2);padding:12px 14px;background:rgba(34,197,94,.08);border-radius:0 16px 16px 0;color:#e6ffee}.warning{border-left-color:var(--warn);background:rgba(245,158,11,.08);color:#ffe9bd}.danger{border-left-color:var(--danger);background:rgba(239,68,68,.08);color:#ffd2d2}
+    code,kbd{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.12);padding:.12rem .35rem;border-radius:7px;color:#fff} pre{background:var(--code);border:1px solid rgba(255,255,255,.12);padding:16px;border-radius:18px;overflow:auto;position:relative;color:#f4f0ff;line-height:1.45} pre .label{position:absolute;top:8px;right:10px;font-size:.7rem;color:#bcb5d9;background:rgba(255,255,255,.07);padding:2px 7px;border-radius:999px}
+    table{width:100%;border-collapse:collapse;margin:16px 0;background:rgba(255,255,255,.035);border-radius:16px;overflow:hidden}th,td{border:1px solid rgba(255,255,255,.12);padding:10px;text-align:left;vertical-align:top}th{background:rgba(124,58,237,.25);color:#fff}td{color:#ddd7f7}
+    .quiz{display:grid;gap:12px}.q{border:1px solid var(--line);border-radius:20px;padding:16px;background:rgba(255,255,255,.045)}.q strong{display:block;margin-bottom:8px}.q label{display:block;margin:8px 0;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);cursor:pointer}.q label:hover{border-color:rgba(124,58,237,.55)}
+    textarea,input[type=text]{width:100%;min-height:100px;border-radius:18px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);color:#fff;padding:14px;font:inherit;outline:none}input[type=text]{min-height:auto}.answer{display:none;margin-top:10px}.answer.show{display:block}.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.btn{min-height:44px;border:0;border-radius:16px;padding:11px 16px;background:linear-gradient(135deg,var(--brand),#4f46e5);color:#fff;font-weight:900;cursor:pointer;box-shadow:0 10px 22px rgba(79,70,229,.2)}.btn.secondary{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);box-shadow:none}.btn.good{background:linear-gradient(135deg,#16a34a,#22c55e)}.btn:disabled{opacity:.5;cursor:not-allowed}.btn:focus-visible,.toc button:focus-visible{outline:3px solid #fff;outline-offset:3px}.result{margin-top:12px;padding:12px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:#e8e2ff}.ok{color:#a7f3d0}.bad{color:#fecaca}.taskDone{border-color:rgba(34,197,94,.65)!important;box-shadow:0 0 0 1px rgba(34,197,94,.3) inset}.small{font-size:.9rem;color:var(--soft)}
+    .checkpoint{margin-top:22px;border:1px solid rgba(34,197,94,.35);background:rgba(34,197,94,.08);border-radius:22px;padding:18px}.checklist li{margin:7px 0;color:#dcd6f6}.split{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .flash{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.flash div{border:1px solid var(--line);border-radius:18px;padding:14px;background:rgba(255,255,255,.045)}.flash b{color:#fff}.tagline{display:flex;gap:8px;flex-wrap:wrap}.kbdrow{display:flex;gap:8px;flex-wrap:wrap}.kbdrow kbd{font-weight:800}.footer{opacity:.8;text-align:center;padding:36px 0}
+    @media(min-width:821px) and (max-width:1100px){
+      .wrap{padding-inline:20px}
+      header.hero{padding:30px}
+      .grid.three{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .levelHead,.levelBody{padding:22px}
+      .card{padding:19px}
     }
-    @media(max-width:850px){
-      .hero,.grid2,.library{grid-template-columns:1fr}
-      header{position:relative}
-      .topbar{align-items:flex-start;flex-direction:column;padding:14px 18px;gap:12px}
-      .progressWrap{text-align:left;width:100%;min-width:0}
-      .levelHeader,.taskTop{flex-direction:column}
-      .level{padding:18px}
-      main{padding:20px max(16px,env(safe-area-inset-right)) max(60px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
-      .navLevels{flex-wrap:nowrap;overflow-x:auto;padding:2px 2px 10px;scrollbar-width:thin;scroll-snap-type:x proximity}
-      .levelBtn{flex:0 0 auto;min-height:44px;scroll-snap-align:start}
-      .footerActions{align-items:stretch;flex-direction:column}
-      .footerActions .actions{width:100%}
-      .toast{right:16px;bottom:max(16px,env(safe-area-inset-bottom));left:16px;max-width:none}
+    @media(max-width:820px){
+      .wrap{padding:16px max(14px,env(safe-area-inset-right)) max(60px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left))}
+      header.hero{padding:25px 20px;border-radius:24px}
+      .grid.two,.grid.three,.split{grid-template-columns:1fr}
+      .levelHead{display:block;padding:21px}
+      .levelBody{padding:18px}
+      section.level{margin:22px 0;border-radius:24px}
+      .toc{top:0;border-radius:16px;margin:14px 0 20px;padding:9px;scroll-snap-type:x proximity;scrollbar-width:thin}
+      .toc button{min-height:44px;scroll-snap-align:start}
+      .card{padding:18px;border-radius:20px}
+      table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+      pre{max-width:100%;font-size:.86rem;-webkit-overflow-scrolling:touch}
+      .status{display:inline-block;margin-top:10px}
+      .badge{max-width:100%;white-space:normal}
     }
-    @media(max-width:560px){
-      .topbar{padding-inline:14px}
-      .brand{align-items:flex-start}
-      .logo{width:38px;height:38px;border-radius:12px;flex:0 0 auto}
-      h1{font-size:1.2rem}
-      .subtitle{font-size:.8rem;line-height:1.4}
-      main{padding-inline:12px}
-      .hero{margin-top:8px;gap:12px}
-      .hero .card,.level{padding:16px;border-radius:18px}
-      .task{padding:15px;border-radius:17px}
-      h2{font-size:clamp(1.35rem,7vw,1.8rem)}
-      h3{font-size:1.08rem}
-      .prompt{font-size:1rem;padding:11px 12px}
-      .chips{gap:7px}
-      button.chip{min-height:42px;padding:9px 10px;white-space:normal;text-align:left}
-      textarea{min-height:150px;font-size:16px;padding:12px}
-      .actions{display:grid;grid-template-columns:1fr}
-      .actions .btn{width:100%}
-      .answerBox{overflow-wrap:anywhere}
-      pre{font-size:.82rem;padding:12px}
+    @media(max-width:520px){
+      .wrap{padding-inline:10px}
+      header.hero{padding:21px 17px;border-radius:20px}
+      h1{font-size:clamp(2.15rem,12vw,3.2rem);overflow-wrap:anywhere}
+      h2{font-size:clamp(1.45rem,8vw,2rem)}
+      h3{font-size:1.18rem;margin-top:22px}
+      .lead{font-size:1rem}
+      .tagline{gap:5px}
+      .pill{font-size:.72rem;padding:6px 8px;margin:2px}
+      .levelHead{padding:18px}
+      .levelBody{padding:12px}
+      .card{padding:15px;border-radius:17px}
+      .q{padding:13px;border-radius:16px}
+      .q label{display:flex;align-items:flex-start;gap:8px;min-height:44px;padding:10px}
+      .q input[type=radio]{flex:0 0 auto;margin-top:4px;transform:scale(1.15)}
+      textarea{min-height:150px;font-size:16px;padding:12px;border-radius:15px}
+      .btns{display:grid;grid-template-columns:1fr}
+      .btns .btn,.checkpoint>.btn,.footer .btn{width:100%}
+      .checkpoint{padding:15px;border-radius:18px}
+      .flash{grid-template-columns:1fr}
+      table{font-size:.86rem}
+      th,td{min-width:145px;padding:8px}
     }
-    @media(hover:hover) and (pointer:fine){
-      .levelBtn:hover{transform:translateY(-1px);border-color:rgba(143,122,255,.75)}
-      button.chip:hover{border-color:rgba(143,122,255,.8);transform:translateY(-1px)}
-      .btn:hover{transform:translateY(-1px);border-color:rgba(255,255,255,.32)}
-    }
-    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.level.active,.toast.show{animation:none}.btn,.chip,.levelBtn,.barFill{transition:none}}
+    @media(hover:hover) and (pointer:fine){.q label:hover{border-color:rgba(124,58,237,.55)}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.bar{transition:none}}
   </style>
 </head>
 <body>
-  <header>
-    <div class="topbar">
-      <div class="brand">
-        <div class="logo">C</div>
-        <div>
-          <h1>Treino de Esqueleto em C</h1>
-          <div class="subtitle">Transforme enunciados em receita antes de codar - Estrutura de Dados Aulas 1, 2 e 3</div>
-        </div>
-      </div>
-      <div class="progressWrap">
-        <div class="bar"><div id="barFill" class="barFill"></div></div>
-        <div id="progressText" class="progressText">Carregando progresso...</div>
-      </div>
+<div class="wrap">
+  <header class="hero">
+    <span class="badge">🎮 Treinamento refeito do zero • Cobertura completa das 3 aulas</span>
+    <h1>Estrutura de Dados em C<br/>Mastery Quest</h1>
+    <p class="lead">Um treinamento em formato de jogo para dominar as três primeiras aulas: Linguagem C, Dados Homogêneos/Heterogêneos e Ponteiros/Endereçamento de Memória. Este arquivo foi organizado para cobrir o PDF inteiro, não só o começo.</p>
+    <div class="tagline">
+      <span class="pill green">explicação lúdica</span><span class="pill">explicação técnica</span><span class="pill warn">tradução para prova</span><span class="pill red">pegadinhas</span><span class="pill green">prática de código</span>
     </div>
+    <div style="margin-top:20px" class="meter"><div id="globalBar" class="bar"></div></div>
+    <p class="small"><span id="globalStatus">0%</span> concluído. Os níveis desbloqueiam em sequência.</p>
   </header>
 
-  <main>
-    <section class="hero">
-      <div class="card">
-        <h2>O treino que resolve o “deu branco”</h2>
-        <p class="note">Você vai treinar a habilidade que vem antes do código: olhar para o enunciado e montar a arquitetura mental da solução.</p>
-        <div class="formula">
-          <span><b class="num">1</b><b>O que entra?</b> Dados digitados, argumentos, quantidade de valores, texto, nota, RA etc.</span>
-          <span><b class="num">2</b><b>O que guardar?</b> Variáveis simples, arrays, matrizes, structs ou ponteiros.</span>
-          <span><b class="num">3</b><b>O que fazer?</b> Soma, média, comparação, cadastro, impressão, alteração por referência.</span>
-          <span><b class="num">4</b><b>Tem decisão?</b> if/else ou switch.</span>
-          <span><b class="num">5</b><b>Tem repetição?</b> for, while ou do while.</span>
-          <span><b class="num">6</b><b>Tem função?</b> Parâmetros, retorno, void e protótipo.</span>
-          <span><b class="num">7</b><b>O que sai?</b> printf, relatório, lista, endereço, maior valor, resultado final.</span>
-        </div>
+  <nav class="toc" id="toc"></nav>
+
+  <section class="card">
+    <h2>Mapa de cobertura dos PDFs</h2>
+    <p>Use esta lista como auditoria. Se cair na prova, deve estar em algum nível abaixo.</p>
+    <div class="grid three">
+      <div class="mini"><h3>Aula 1 - Linguagem C</h3><p>CISC/RISC, microcontroladores, por que C, história, compilação, gcc/MinGW, arquivo <code>.c</code>, <code>main</code>, <code>argc</code>/<code>argv</code>, variáveis, tipos de dados, ausência de <code>boolean</code> e <code>string</code>, constantes, <code>#define</code>, <code>printf</code>, <code>scanf</code>, strings, <code>if</code>, <code>switch</code>, <code>for</code>, <code>while</code>, <code>do while</code>, funções e prototipação.</p></div>
+      <div class="mini"><h3>Aula 2 - Dados estruturados</h3><p>Dados estruturados, homogêneos, heterogêneos, vetores, matrizes, multidimensionais, arrays em C, índice de 0 até tamanho - 1, laço <code>for</code> com arrays, matrizes com laços aninhados, structs, <code>typedef struct</code>, operador ponto, <code>strcpy</code>, <code>scanf</code> em struct, texto com espaço, structs aninhadas e arrays de structs.</p></div>
+      <div class="mini"><h3>Aula 3 - Ponteiros</h3><p>RAM, Von Neumann, bits, bytes, páginas, segmentos, endereço absoluto/real/virtual, <code>&</code>, <code>%p</code>, tamanho do tipo, <code>scanf</code> e bytes, strings por referência, caractere nulo <code>\0</code>, ponteiros, declaração, atribuição por tipo, <code>scanf</code> com ponteiro, desreferenciação <code>*</code>, passagem por referência, ponteiros e vetores, ponteiro para struct com <code>-></code>, ponteiro de ponteiro <code>**</code>.</p></div>
+    </div>
+  </section>
+
+  <!-- LEVELS GENERATED MANUALLY -->
+
+  <section class="level" id="level1" data-level="1">
+    <div class="levelHead"><div><span class="badge">Nível 1</span><h2>Por que Estrutura de Dados começa falando de C?</h2><p>Antes de codar, você precisa entender por que a disciplina liga dados, memória, processador, computadores e microcontroladores.</p></div><div class="status" data-status>Bloqueado</div></div>
+    <div class="levelBody">
+      <div class="split">
+        <div class="card"><h3>Explicação lúdica</h3><p>Imagine dois mundos: um computador moderno é como uma cozinha industrial enorme, cheia de máquinas, espaço e recursos. Um microcontrolador é como uma cozinha minúscula de food truck: dá para fazer muita coisa, mas você precisa economizar espaço, energia e movimento.</p><p>Estrutura de Dados entra exatamente aí: em qualquer plataforma, os dados precisam ser recebidos, guardados, processados e devolvidos. A diferença é quanto recurso você tem para fazer isso.</p></div>
+        <div class="card"><h3>Explicação técnica</h3><p>Os PDFs começam comparando computadores ricos em recursos com dispositivos simples. Processadores CISC possuem conjunto de instruções mais complexo, são versáteis e programáveis, mas caros. Dispositivos simples, como uma calculadora de 8 bits, podem usar microcontroladores RISC, com instruções mais limitadas e menor custo. Em microcontroladores, recursos como memória e processamento são restritos, então a forma de manipular dados precisa ser mais controlada.</p></div>
       </div>
-      <div class="card">
-        <h3>Como usar</h3>
-        <p>Faça os níveis em ordem. Cada nível tem três tipos de exercício:</p>
-        <div class="pillrow">
-          <span class="pill">🏷️ identificar blocos</span>
-          <span class="pill">🧩 ordenar receita</span>
-          <span class="pill">✍️ escrever esqueleto</span>
-        </div>
-        <p style="margin-top:16px" class="note">O objetivo não é decorar uma solução. É reconhecer o tipo de problema e montar o caminho antes de escrever C.</p>
-        <div class="actions">
-          <button type="button" class="btn primary" onclick="resetProgress(false)">Recomeçar treino</button>
-          <button type="button" class="btn" onclick="unlockAll()">Desbloquear tudo</button>
-        </div>
+      <div class="card"><h3>Tradução didático → técnico</h3><table><tr><th>Jeito didático</th><th>Jeito técnico de faculdade</th></tr><tr><td>“Computador tem muita folga.”</td><td>Computadores modernos possuem alta disponibilidade de memória, armazenamento e processamento.</td></tr><tr><td>“Microcontrolador é mais limitado.”</td><td>Microcontroladores possuem menos memória, menor poder de processamento e conjunto de instruções mais restrito.</td></tr><tr><td>“C é mais cru.”</td><td>C permite manipulação mais explícita de variáveis, tipos, endereços e estruturas de dados, sem abstrações nativas como classes, objetos, listas, collections, eventos ou GUI.</td></tr></table></div>
+      <div class="card"><h3>Quiz de identificação</h3><div class="quiz" data-quiz="q1">
+        <div class="q" data-answer="c"><strong>1. Uma calculadora de 8 bits, no contexto do PDF, justifica melhor:</strong><label><input name="q1_1" type="radio" value="a"> um processador CISC caro, pois tarefas simples exigem instruções complexas.</label><label><input name="q1_1" type="radio" value="b"> uma linguagem orientada a objetos com GUI nativa.</label><label><input name="q1_1" type="radio" value="c"> um microcontrolador RISC, pois executa tarefas simples com menor custo.</label><label><input name="q1_1" type="radio" value="d"> um sistema com listas e collections nativas.</label></div>
+        <div class="q" data-answer="b"><strong>2. A relação entre Estrutura de Dados e microcontroladores é:</strong><label><input name="q1_2" type="radio" value="a"> inexistente, porque microcontroladores não processam dados.</label><label><input name="q1_2" type="radio" value="b"> direta, porque qualquer plataforma recebe, processa, armazena e retorna dados.</label><label><input name="q1_2" type="radio" value="c"> limitada a interfaces gráficas.</label><label><input name="q1_2" type="radio" value="d"> restrita a programas Java e C#.</label></div>
+        <div class="q" data-answer="d"><strong>3. Segundo o PDF, em C não existem nativamente:</strong><label><input name="q1_3" type="radio" value="a"> variáveis, funções e arrays.</label><label><input name="q1_3" type="radio" value="b"> ponteiros, structs e scanf.</label><label><input name="q1_3" type="radio" value="c"> tipos primitivos e compilador.</label><label><input name="q1_3" type="radio" value="d"> classe, objeto, lista, collection, evento e GUI.</label></div>
+      </div><div class="btns"><button class="btn" onclick="checkQuiz('q1')">Conferir quiz</button></div><div id="q1_result" class="result"></div></div>
+      <div class="card"><h3>Treino de tradução técnica</h3><p>Transforme: “C é usado porque no microcontrolador não dá para desperdiçar recurso.”</p><textarea data-keywords="C,microcontrolador,recursos,memória,processamento" placeholder="Escreva uma frase técnica..."></textarea><div class="btns"><button class="btn secondary" onclick="checkKeywords(this)">Conferir palavras-chave</button><button class="btn secondary" onclick="toggleAnswer(this)">Ver resposta modelo</button></div><div class="answer quote"><b>Modelo:</b> A linguagem C é adequada para ambientes com recursos limitados, como microcontroladores, pois permite maior controle sobre memória, tipos de dados e processamento.</div></div>
+      <div class="checkpoint"><h3>Checkpoint do nível</h3><p>Conclua o quiz e o treino para desbloquear o próximo nível.</p><button class="btn good" onclick="finishLevel(1)">Concluir nível 1</button><div class="result" id="finish1"></div></div>
+    </div>
+  </section>
+
+  <section class="level" id="level2" data-level="2">
+    <div class="levelHead"><div><span class="badge">Nível 2</span><h2>Linguagem C: compilação, main, argc, argv e esqueleto mental</h2><p>A base que você precisa saber antes de escrever qualquer exercício.</p></div><div class="status" data-status>Bloqueado</div></div>
+    <div class="levelBody">
+      <div class="grid two">
+        <div class="card"><h3>História da linguagem C</h3><p>C é uma linguagem compilada, imperativa e de propósito geral, padronizada pela ISO, aplicável tanto a CISC quanto a RISC. Foi criada por Dennis Ritchie, na AT&T Bell Labs, entre 1969 e 1973, a partir de uma linguagem anterior dele mesmo chamada "B". Ritchie também desenvolveu o UNIX junto com Ken Thompson.</p><p class="quote"><b>Frase de prova:</b> C é uma linguagem de baixo nível com traços de alto nível, aproximando-se mais da linguagem humana que a linguagem de máquina. A versão atual é a C23.</p></div><div class="card"><h3>Do PDF para o código</h3><p>Programas em C ficam em arquivos <code>.c</code>, tradicionalmente com arquivo principal chamado <code>main.c</code>. Por ser compilada, C precisa ser convertida para linguagem de máquina. O PDF cita o compilador original <code>cc</code>, o <code>gcc</code> como compilador popular e o MinGW como opção comum no Windows.</p><pre><span class="label">esqueleto</span><code>#include &lt;stdio.h&gt;
+
+int main(int argc, char const *argv[]) {
+    return 0;
+}</code></pre></div>
+        <div class="card"><h3>Quebrando cada pedaço</h3><table><tr><th>Trecho</th><th>Função</th></tr><tr><td><code>#include &lt;stdio.h&gt;</code></td><td>Inclui a biblioteca padrão de entrada e saída, usada por <code>printf</code> e <code>scanf</code>.</td></tr><tr><td><code>int main(...)</code></td><td>Função principal. O primeiro <code>int</code> indica retorno inteiro para o sistema.</td></tr><tr><td><code>argc</code></td><td><i>argument count</i>: quantidade de argumentos passados pela linha de comando.</td></tr><tr><td><code>argv[]</code></td><td><i>argument values</i>: vetor de strings com os argumentos recebidos.</td></tr><tr><td><code>return 0;</code></td><td>Indica encerramento bem-sucedido.</td></tr></table></div>
       </div>
-    </section>
+      <div class="card"><h3>Modelo mental para começar código</h3><ol class="checklist"><li>Vou usar entrada/saída? Então incluo <code>stdio.h</code>.</li><li>Abro o <code>main</code>.</li><li>Declaro variáveis/constantes.</li><li>Recebo dados com <code>scanf</code>, quando necessário.</li><li>Processo com operadores, condicionais, laços ou funções.</li><li>Mostro resultado com <code>printf</code>.</li><li>Finalizo com <code>return 0</code>.</li></ol></div>
+      <div class="card"><h3>Prática de leitura de código</h3><pre><code>#include &lt;stdio.h&gt;
 
-    <section class="card" style="padding:22px; margin-bottom:22px">
-      <h3>Biblioteca rápida de gatilhos</h3>
-      <div class="library">
-        <div class="libCard"><b>Entrada e saída</b><ul><li>leia, receba, informe -> scanf</li><li>mostre, imprima, exiba -> printf</li><li>valor digitado -> variável</li></ul></div>
-        <div class="libCard"><b>Decisão e repetição</b><ul><li>maior, menor, aprovado -> if</li><li>opção/menu -> switch</li><li>10 valores -> for</li><li>até sair -> while/do while</li></ul></div>
-        <div class="libCard"><b>Estruturas</b><ul><li>vários do mesmo tipo -> array</li><li>linha/coluna -> matriz</li><li>nome + RA + nota -> struct</li><li>endereço/alterar original -> ponteiro</li></ul></div>
-      </div>
-    </section>
+int main(int argc, char const *argv[]) {
+    printf("Argumentos: %d", argc);
+    return 0;
+}</code></pre><p>Explique tecnicamente o que <code>argc</code> representa.</p><textarea data-keywords="quantidade,argumentos,linha de comando,main" placeholder="Sua explicação..."></textarea><div class="btns"><button class="btn secondary" onclick="checkKeywords(this)">Conferir</button><button class="btn secondary" onclick="toggleAnswer(this)">Ver resposta modelo</button></div><div class="answer quote"><b>Modelo:</b> <code>argc</code> é um parâmetro inteiro da função <code>main</code> que armazena a quantidade de argumentos com os quais o programa foi chamado pela linha de comando.</div></div>
+      <div class="card"><h3>Quiz</h3><div class="quiz" data-quiz="q2">
+        <div class="q" data-answer="a"><strong>1. Por ser compilada, a linguagem C exige:</strong><label><input name="q2_1" type="radio" value="a"> conversão do código-fonte para linguagem de máquina antes da execução.</label><label><input name="q2_1" type="radio" value="b"> execução direta por navegador.</label><label><input name="q2_1" type="radio" value="c"> uma classe principal obrigatória.</label><label><input name="q2_1" type="radio" value="d"> um arquivo <code>.js</code>.</label></div>
+        <div class="q" data-answer="d"><strong>2. Em <code>int main(int argc, char const *argv[])</code>, <code>argv</code> é melhor descrito como:</strong><label><input name="q2_2" type="radio" value="a"> o número de argumentos.</label><label><input name="q2_2" type="radio" value="b"> o retorno do programa.</label><label><input name="q2_2" type="radio" value="c"> uma constante float.</label><label><input name="q2_2" type="radio" value="d"> um vetor de strings com os argumentos de linha de comando.</label></div>
+        <div class="q" data-answer="b"><strong>3. O arquivo principal em C é tradicionalmente chamado de:</strong><label><input name="q2_3" type="radio" value="a"> app.html</label><label><input name="q2_3" type="radio" value="b"> main.c</label><label><input name="q2_3" type="radio" value="c"> program.class</label><label><input name="q2_3" type="radio" value="d"> index.py</label></div>
+      </div><div class="btns"><button class="btn" onclick="checkQuiz('q2')">Conferir quiz</button></div><div id="q2_result" class="result"></div></div>
+      <div class="checkpoint"><button class="btn good" onclick="finishLevel(2)">Concluir nível 2</button><div class="result" id="finish2"></div></div>
+    </div>
+  </section>
 
-    <nav id="navLevels" class="navLevels"></nav>
-    <div id="levelsContainer"></div>
-  </main>
+  <section class="level" id="level3" data-level="3">
+    <div class="levelHead"><div><span class="badge">Nível 3</span><h2>Variáveis, tipos de dados, constantes e #define</h2><p>A parte que faltou antes: ela é central para memória, formatadores, scanf e ponteiros.</p></div><div class="status" data-status>Bloqueado</div></div>
+    <div class="levelBody">
+      <div class="grid two"><div class="card"><h3>Variáveis</h3><p>Para declarar uma variável em C, primeiro vem o tipo, depois o identificador.</p><pre><code>int numero;
+float valor;
 
-  <div id="toast" class="toast"></div>
+int n1, n2, n3;
+float media = 8.5;</code></pre><p>Variável é um espaço de memória nomeado. O tipo define como aquele espaço será interpretado.</p></div><div class="card"><h3>Tipos de dados</h3><p>O PDF destaca que os tipos em C são semelhantes aos de linguagens modernas, mas C não possui <code>boolean</code> e <code>string</code> nativos. Texto será tratado como array de caracteres.</p><table><tr><th>Tipo</th><th>Uso</th><th>Formatador comum</th></tr><tr><td><code>char</code></td><td>caractere</td><td><code>%c</code></td></tr><tr><td><code>int</code></td><td>inteiro</td><td><code>%d</code></td></tr><tr><td><code>float</code></td><td>real decimal</td><td><code>%f</code></td></tr><tr><td><code>double</code></td><td>real com maior precisão</td><td><code>%lf</code> no scanf</td></tr><tr><td><code>char[]</code></td><td>texto/string como array</td><td><code>%s</code></td></tr></table></div></div>
+      <div class="card"><h3>Tabela do PDF: bits e intervalos</h3><p>No PDF, a tabela mostra que tipos diferentes ocupam quantidades diferentes de bits e aceitam intervalos diferentes. Isso explica por que o formatador correto importa.</p><table><tr><th>Tipo</th><th>Bits no PDF</th><th>Intervalo no PDF</th></tr><tr><td><code>char</code></td><td>8</td><td>-128 a 127</td></tr><tr><td><code>unsigned char</code></td><td>8</td><td>0 a 255</td></tr><tr><td><code>int</code></td><td>16</td><td>-32.768 a 32.767</td></tr><tr><td><code>unsigned int</code></td><td>16</td><td>0 a 65.535</td></tr><tr><td><code>long int</code></td><td>32</td><td>-2.147.483.648 a 2.147.483.647</td></tr><tr><td><code>float</code></td><td>32</td><td>3,4E-38 a 3,4E+38</td></tr><tr><td><code>double</code></td><td>64</td><td>1,7E-308 a 1,7E+308</td></tr><tr><td><code>long double</code></td><td>80</td><td>3,4E-4932 a 3,4E+4932</td></tr></table><p class="warning quote"><b>Pegadinha:</b> em compiladores modernos, o tamanho real de <code>int</code> pode variar conforme arquitetura/compilador. Para sua prova, siga a tabela do PDF quando ela for a referência.</p></div>
+      <div class="grid two"><div class="card"><h3>Constantes com <code>const</code></h3><pre><code>const float PI = 3.14159;
+const float EULER = 0.57721;</code></pre><p>Uma constante nomeia um valor usado várias vezes. Com <code>const</code>, há tipo associado e verificação pelo compilador.</p></div><div class="card"><h3>Constantes com <code>#define</code></h3><pre><code>#define PI 3.14159
+#define EULER 0.57721</code></pre><p><code>#define</code> é uma diretiva de pré-processador: substitui o identificador em tempo de compilação. Não possui tipo próprio nem verificação de tipo como uma constante.</p><p class="danger quote"><b>Atenção:</b> o slide mostra <code>#define PI = 3.14159;</code>, mas em C usual o formato correto é sem <code>=</code> e sem <code>;</code>: <code>#define PI 3.14159</code>.</p></div></div>
+      <div class="card"><h3>Quiz</h3><div class="quiz" data-quiz="q3">
+        <div class="q" data-answer="c"><strong>1. Em C, a declaração <code>float valor;</code> significa:</strong><label><input name="q3_1" type="radio" value="a"> criar uma constante sem tipo.</label><label><input name="q3_1" type="radio" value="b"> criar uma string nativa.</label><label><input name="q3_1" type="radio" value="c"> reservar um espaço interpretado como número real.</label><label><input name="q3_1" type="radio" value="d"> definir um pré-processador.</label></div>
+        <div class="q" data-answer="a"><strong>2. Segundo o PDF, tipos conhecidos que não existem nativamente em C incluem:</strong><label><input name="q3_2" type="radio" value="a"> <code>boolean</code> e <code>string</code>.</label><label><input name="q3_2" type="radio" value="b"> <code>int</code> e <code>float</code>.</label><label><input name="q3_2" type="radio" value="c"> <code>char</code> e <code>double</code>.</label><label><input name="q3_2" type="radio" value="d"> <code>long int</code> e <code>unsigned char</code>.</label></div>
+        <div class="q" data-answer="d"><strong>3. Diferença correta entre <code>const</code> e <code>#define</code>:</strong><label><input name="q3_3" type="radio" value="a"> ambos alocam memória durante execução.</label><label><input name="q3_3" type="radio" value="b"> <code>#define</code> sempre verifica tipo melhor que <code>const</code>.</label><label><input name="q3_3" type="radio" value="c"> <code>const</code> não possui tipo.</label><label><input name="q3_3" type="radio" value="d"> <code>#define</code> substitui no pré-processamento; <code>const</code> possui tipo e verificação.</label></div>
+      </div><div class="btns"><button class="btn" onclick="checkQuiz('q3')">Conferir quiz</button></div><div id="q3_result" class="result"></div></div>
+      <div class="checkpoint"><button class="btn good" onclick="finishLevel(3)">Concluir nível 3</button><div class="result" id="finish3"></div></div>
+    </div>
+  </section>
 
-  <script>
-    const LEVELS = [{"id": "nivel-0", "title": "Nível 0 - O método anti-branco", "badge": "Método", "objective": "Aprender a transformar um enunciado em receita antes de tentar escrever código.", "lesson": "Você não começa pelo código. Você começa separando: entrada, variáveis, processamento, decisão, repetição, função e saída. Essa é a ponte entre português e C.", "concepts": ["funil de tradução", "esqueleto", "entrada-processamento-saída", "palavras-gatilho"], "tasks": [{"type": "tags", "title": "Caça-gatilhos 1", "prompt": "Leia dois números e mostre a soma.", "instruction": "Marque quais blocos esse enunciado exige.", "tags": ["entrada", "saída", "decisão", "repetição", "função", "array", "struct", "ponteiro", "variáveis", "processamento"], "expected": ["entrada", "saída", "variáveis", "processamento"], "feedback": "Aqui existe leitura de dados, variáveis para guardar os números, processamento de soma e impressão do resultado. Não há decisão, repetição nem função obrigatória."}, {"type": "order", "title": "Receita antes do código", "prompt": "Escreva um programa que leia dois números e mostre a média.", "instruction": "Monte a ordem do esqueleto. Clique nos blocos na sequência correta.", "blocks": ["incluir stdio.h", "abrir main", "declarar variáveis", "ler primeiro número", "ler segundo número", "calcular média", "imprimir média", "return 0"], "expected": ["incluir stdio.h", "abrir main", "declarar variáveis", "ler primeiro número", "ler segundo número", "calcular média", "imprimir média", "return 0"], "feedback": "A receita segue a ordem básica: preparar biblioteca, abrir main, criar espaços de memória, receber dados, processar e mostrar."}, {"type": "write", "title": "Tradução livre guiada", "prompt": "Transforme o enunciado 'leia dois números e mostre o produto' em uma receita em português, sem código completo.", "instruction": "Escreva a receita em passos. Não precisa programar ainda.", "must": [["ler", "receber", "entrada"], ["dois", "2"], ["variáveis", "guardar"], ["multiplicar", "produto"], ["mostrar", "imprimir", "saída"]], "feedback": "Uma boa receita menciona: ler dois números, guardar em variáveis, multiplicar, guardar ou calcular o produto, imprimir o resultado."}]}, {"id": "nivel-1", "title": "Nível 1 - C básico: esqueleto, variáveis, tipos e E/S", "badge": "C base", "objective": "Montar o esqueleto de programas com tipos, printf e scanf sem travar.", "lesson": "Nos exercícios iniciais, o esqueleto quase sempre é: #include <stdio.h>, main, variáveis, printf/scanf, processamento, printf final e return 0. Tipos definem como o dado será guardado e interpretado.", "concepts": ["#include", "main", "int", "float", "char", "printf", "scanf", "&"], "tasks": [{"type": "tags", "title": "Tipos e entrada", "prompt": "Leia a idade de uma pessoa e mostre a idade digitada.", "instruction": "Marque os blocos necessários.", "tags": ["stdio.h", "int", "float", "char[]", "scanf com &", "printf", "if", "for", "struct", "função"], "expected": ["stdio.h", "int", "scanf com &", "printf"], "feedback": "Idade é um inteiro; scanf precisa do endereço da variável inteira usando &; printf mostra o valor."}, {"type": "order", "title": "Esqueleto de leitura", "prompt": "Leia uma nota decimal e informe a nota digitada.", "instruction": "Monte a ordem do programa.", "blocks": ["incluir stdio.h", "abrir main", "declarar float nota", "pedir a nota com printf", "ler nota com scanf e &nota", "mostrar nota com printf", "return 0"], "expected": ["incluir stdio.h", "abrir main", "declarar float nota", "pedir a nota com printf", "ler nota com scanf e &nota", "mostrar nota com printf", "return 0"], "feedback": "Quando o dado é digitado depois que o programa abriu, use scanf; quando ele é decimal, use float e formatador compatível."}, {"type": "write", "title": "Diagnóstico de formatador", "prompt": "Explique em receita o que você pensaria para ler: um inteiro, um decimal e uma letra.", "instruction": "Você não precisa escrever código completo. Escreva quais variáveis e quais entradas precisaria usar.", "must": [["int", "%d"], ["float", "%f"], ["char", "%c"], ["scanf"], ["&"]], "feedback": "O essencial é conectar tipo + formatador + endereço: int/%d, float/%f, char/%c, e scanf normalmente usando & para variáveis simples."}]}, {"id": "nivel-2", "title": "Nível 2 - Constantes, #define e cálculo organizado", "badge": "Constantes", "objective": "Reconhecer quando um enunciado pede valor fixo e como isso muda o esqueleto.", "lesson": "Constante é usada quando um valor aparece como referência fixa no programa, como PI, taxa, limite ou tamanho. const cria uma constante tipada; #define faz substituição antes da compilação.", "concepts": ["const", "#define", "valor fixo", "tipo", "compilação"], "tasks": [{"type": "tags", "title": "Constante ou variável?", "prompt": "Leia o raio e calcule a área de um círculo usando PI = 3.14159.", "instruction": "Marque os blocos necessários.", "tags": ["entrada", "variável raio", "const PI ou define PI", "processamento", "saída", "if", "for", "struct", "ponteiro"], "expected": ["entrada", "variável raio", "const PI ou define PI", "processamento", "saída"], "feedback": "Raio muda e vem da entrada; PI é fixo e deve entrar como const ou #define."}, {"type": "order", "title": "Receita com valor fixo", "prompt": "Calcule o preço final de um produto aplicando uma taxa fixa de 10%.", "instruction": "Monte a ordem do esqueleto.", "blocks": ["incluir stdio.h", "definir taxa fixa", "abrir main", "declarar preço e preçoFinal", "ler preço", "calcular preçoFinal", "imprimir preçoFinal", "return 0"], "expected": ["incluir stdio.h", "definir taxa fixa", "abrir main", "declarar preço e preçoFinal", "ler preço", "calcular preçoFinal", "imprimir preçoFinal", "return 0"], "feedback": "Quando o enunciado traz uma taxa fixa, ela entra antes da lógica principal como constante ou definição."}, {"type": "write", "title": "Tradução técnica", "prompt": "Explique quando você escolheria const em vez de uma variável comum.", "instruction": "Escreva como se estivesse justificando para a faculdade.", "must": [["valor fixo", "não muda", "constante"], ["tipo", "tipada"], ["programa", "execução"], ["legibilidade", "nomear"]], "feedback": "Boa resposta: uso const para nomear um valor fixo do programa, com tipo definido, evitando números soltos e deixando a lógica mais legível."}]}, {"id": "nivel-3", "title": "Nível 3 - Decisão: if, else e switch", "badge": "Decisão", "objective": "Traduzir palavras como maior, menor, aprovado, opção e menu em estruturas de decisão.", "lesson": "if/else resolve perguntas verdadeiro/falso. switch resolve escolhas entre valores fixos de uma mesma variável, como menus.", "concepts": ["if", "else", "switch", "case", "default", "break", "comparação"], "tasks": [{"type": "tags", "title": "Qual estrutura?", "prompt": "Leia uma nota e informe se o aluno foi aprovado, considerando nota maior ou igual a 7.", "instruction": "Marque os blocos necessários.", "tags": ["entrada", "variável nota", "if/else", "switch", "for", "array", "saída", "função obrigatória"], "expected": ["entrada", "variável nota", "if/else", "saída"], "feedback": "A palavra 'se' está escondida em 'informe se foi aprovado'. É uma decisão binária, portanto if/else."}, {"type": "order", "title": "Menu com switch", "prompt": "Mostre um menu com 1-Cadastrar, 2-Listar, 3-Sair; leia a opção e mostre a ação escolhida.", "instruction": "Monte a ordem do esqueleto.", "blocks": ["incluir stdio.h", "abrir main", "declarar int opcao", "imprimir menu", "ler opcao", "abrir switch(opcao)", "criar case 1", "criar case 2", "criar case 3", "criar default", "usar break nos cases", "return 0"], "expected": ["incluir stdio.h", "abrir main", "declarar int opcao", "imprimir menu", "ler opcao", "abrir switch(opcao)", "criar case 1", "criar case 2", "criar case 3", "criar default", "usar break nos cases", "return 0"], "feedback": "Menu com opções fixas é um caso clássico de switch. O break evita que o fluxo escorra para os próximos cases."}, {"type": "write", "title": "Pergunta do if", "prompt": "Enunciado: leia dois valores e diga qual é maior. Antes de codar, escreva qual é a pergunta do if e o que acontece no else.", "instruction": "Não escreva código completo. Escreva a pergunta lógica.", "must": [["primeiro", "valor1", "n1"], ["maior", ">"], ["segundo", "valor2", "n2"], ["else", "senão", "caso contrário"]], "feedback": "A pergunta central é: o primeiro valor é maior que o segundo? Se sim, ele é o maior; senão, o segundo é maior ou igual."}]}, {"id": "nivel-4", "title": "Nível 4 - Repetição: for, while e do while", "badge": "Loops", "objective": "Identificar quando um enunciado pede repetição e escolher o laço adequado.", "lesson": "for combina com quantidade conhecida. while combina com repetir enquanto uma condição for verdadeira. do while combina com executar pelo menos uma vez, como menus.", "concepts": ["for", "while", "do while", "contador", "condição", "i++"], "tasks": [{"type": "tags", "title": "Qual laço?", "prompt": "Leia 10 números e mostre cada número digitado.", "instruction": "Marque os blocos necessários.", "tags": ["for", "while obrigatório", "do while obrigatório", "contador", "scanf", "printf", "array obrigatório", "if obrigatório"], "expected": ["for", "contador", "scanf", "printf"], "feedback": "Quantidade conhecida, 10 repetições: for com contador é o caminho mais direto. O array só seria obrigatório se fosse necessário guardar todos para usar depois."}, {"type": "order", "title": "Menu persistente", "prompt": "Crie a receita de um menu que deve aparecer pelo menos uma vez e repetir até o usuário escolher 0 para sair.", "instruction": "Monte a ordem do esqueleto.", "blocks": ["incluir stdio.h", "abrir main", "declarar opcao", "abrir do", "mostrar menu", "ler opcao", "processar opcao com if ou switch", "fechar com while(opcao != 0)", "return 0"], "expected": ["incluir stdio.h", "abrir main", "declarar opcao", "abrir do", "mostrar menu", "ler opcao", "processar opcao com if ou switch", "fechar com while(opcao != 0)", "return 0"], "feedback": "Menu que precisa aparecer ao menos uma vez encaixa muito bem com do while."}, {"type": "write", "title": "Escolha do laço", "prompt": "Explique a diferença de receita entre 'leia 5 notas' e 'leia notas até o usuário digitar -1'.", "instruction": "Foque em qual laço escolher e por quê.", "must": [["5", "quantidade conhecida"], ["for"], ["-1", "sentinela"], ["while", "do while", "condição"]], "feedback": "5 notas = quantidade conhecida, geralmente for. Até digitar -1 = quantidade desconhecida, condição/sentinela, geralmente while ou do while."}]}, {"id": "nivel-5", "title": "Nível 5 - Strings: char[], \\0 e leitura de texto", "badge": "Strings", "objective": "Montar receitas com textos em C sem confundir string com tipo nativo.", "lesson": "Em C, texto é array de char. O número entre colchetes é capacidade de caracteres, não número de palavras. A string termina no caractere nulo \\0.", "concepts": ["char[]", "string", "\\0", "%s", "%[^\\n]", "capacidade"], "tasks": [{"type": "tags", "title": "Nome simples", "prompt": "Leia o primeiro nome de um aluno e mostre uma mensagem de boas-vindas.", "instruction": "Marque os blocos necessários.", "tags": ["char nome[50]", "int nome", "scanf com %s", "scanf com %d", "printf com %s", "if", "for", "struct obrigatória"], "expected": ["char nome[50]", "scanf com %s", "printf com %s"], "feedback": "Nome textual exige array de char; para primeira palavra, %s resolve; para imprimir, use %s."}, {"type": "order", "title": "Texto com espaço", "prompt": "Leia o nome completo de uma pessoa e imprima esse nome.", "instruction": "Monte a ordem do esqueleto.", "blocks": ["incluir stdio.h", "abrir main", "declarar char nomeCompleto[tamanho]", "pedir o nome completo", "ler com padrão que aceita espaço", "imprimir com %s", "return 0"], "expected": ["incluir stdio.h", "abrir main", "declarar char nomeCompleto[tamanho]", "pedir o nome completo", "ler com padrão que aceita espaço", "imprimir com %s", "return 0"], "feedback": "Para textos com espaço, a receita precisa prever uma leitura que não pare no primeiro espaço, como o padrão %[^\\n] estudado no material."}, {"type": "write", "title": "Capacidade, não quantidade usada", "prompt": "Explique a receita mental para declarar char palavra[20] = \"algoritmo\".", "instruction": "Diga o que é 20, o que é algoritmo e por que existe \\0.", "must": [["20", "capacidade", "posições"], ["caracteres", "char"], ["algoritmo"], ["\\0", "nulo", "fim"]], "feedback": "O 20 é a capacidade do array de caracteres. 'algoritmo' usa 9 letras + o caractere nulo \\0; o restante sobra como espaço disponível."}]}, {"id": "nivel-6", "title": "Nível 6 - Funções e prototipação", "badge": "Funções", "objective": "Separar o que fica no main e o que vira função, decidindo retorno, parâmetros e protótipo.", "lesson": "Função tem tipo de retorno, nome, parâmetros e corpo. Se a função completa fica depois do main, o compilador precisa conhecer o protótipo antes.", "concepts": ["função", "parâmetros", "return", "void", "protótipo", "main"], "tasks": [{"type": "tags", "title": "Função com retorno", "prompt": "Leia dois números, use uma função maior() para retornar o maior valor e mostre o resultado.", "instruction": "Marque os blocos necessários.", "tags": ["entrada", "duas variáveis", "função maior", "parâmetros", "return", "if", "void", "for", "struct", "array"], "expected": ["entrada", "duas variáveis", "função maior", "parâmetros", "return", "if"], "feedback": "A função maior precisa receber dois valores, comparar com if e retornar um deles. Não é void porque devolve um valor."}, {"type": "order", "title": "Esqueleto com protótipo", "prompt": "Crie uma função media() que receba duas notas e retorne a média. A função completa ficará depois do main.", "instruction": "Monte a ordem do esqueleto.", "blocks": ["incluir stdio.h", "declarar protótipo de media", "abrir main", "declarar notas e resultado", "ler as notas", "chamar media(n1,n2)", "imprimir resultado", "return 0", "definir função media depois do main"], "expected": ["incluir stdio.h", "declarar protótipo de media", "abrir main", "declarar notas e resultado", "ler as notas", "chamar media(n1,n2)", "imprimir resultado", "return 0", "definir função media depois do main"], "feedback": "Se a função vem depois do main, o protótipo vem antes para avisar o compilador."}, {"type": "write", "title": "main organiza, função resolve", "prompt": "Explique a divisão de responsabilidades entre main e uma função calcularArea().", "instruction": "Fale em receita: quem lê, quem calcula, quem imprime, quem retorna.", "must": [["main"], ["ler", "entrada", "scanf"], ["chamar", "invocar"], ["calcularArea"], ["return", "retornar"], ["imprimir", "printf", "saída"]], "feedback": "Uma boa divisão: main lê dados, chama calcularArea, guarda o retorno e imprime; calcularArea recebe parâmetros, calcula e retorna o resultado."}]}, {"id": "nivel-7", "title": "Nível 7 - Arrays e matrizes: guardar muitos dados", "badge": "Arrays", "objective": "Reconhecer quando precisa de array, matriz e laços aninhados.", "lesson": "Array é estrutura homogênea: várias posições do mesmo tipo, indexadas de 0 até tamanho-1. Matriz é array com duas dimensões; cada dimensão costuma pedir um laço próprio.", "concepts": ["array", "índice", "for", "matriz", "laço aninhado", "dimensões"], "tasks": [{"type": "tags", "title": "Guardar para depois", "prompt": "Leia 10 notas, armazene todas em um vetor e depois imprima todas.", "instruction": "Marque os blocos necessários.", "tags": ["array de float", "for de leitura", "for de impressão", "scanf com &vetor[i]", "printf", "if obrigatório", "struct", "ponteiro"], "expected": ["array de float", "for de leitura", "for de impressão", "scanf com &vetor[i]", "printf"], "feedback": "Como precisa armazenar todas e imprimir depois, array é obrigatório. A variável i identifica a posição."}, {"type": "order", "title": "Matriz jogo da velha", "prompt": "Preencha uma matriz 3x3 de caracteres e depois imprima o tabuleiro.", "instruction": "Monte a receita.", "blocks": ["declarar char matriz[3][3]", "abrir for de linhas", "abrir for de colunas", "ler ou atribuir matriz[i][j]", "fechar laços de preenchimento", "abrir for de linhas para imprimir", "abrir for de colunas para imprimir", "imprimir matriz[i][j]", "quebrar linha ao fim de cada linha"], "expected": ["declarar char matriz[3][3]", "abrir for de linhas", "abrir for de colunas", "ler ou atribuir matriz[i][j]", "fechar laços de preenchimento", "abrir for de linhas para imprimir", "abrir for de colunas para imprimir", "imprimir matriz[i][j]", "quebrar linha ao fim de cada linha"], "feedback": "Duas dimensões pedem dois índices. Para percorrer tudo, use laços aninhados: linha i e coluna j."}, {"type": "write", "title": "0 até tamanho-1", "prompt": "Explique por que um vetor int valores[10] deve ser percorrido com i < 10, e não i <= 10.", "instruction": "Foque na receita de índices válidos.", "must": [["0"], ["9"], ["10 posições", "dez posições"], ["i < 10"], ["i <= 10", "posição 10", "fora"]], "feedback": "Em int valores[10], os índices válidos são 0 a 9. Com i <= 10, você tenta acessar valores[10], que está fora do vetor."}]}, {"id": "nivel-8", "title": "Nível 8 - Structs: dados heterogêneos", "badge": "Structs", "objective": "Montar esqueleto quando o problema envolve uma entidade com campos de tipos diferentes.", "lesson": "Struct agrupa campos de tipos diferentes em uma mesma estrutura. typedef permite usar o nome da struct como tipo. Para strings dentro de struct, use array de char e, em atribuição direta de texto, strcpy.", "concepts": ["struct", "typedef", ".", "strcpy", "string.h", "struct aninhada", "array de structs"], "tasks": [{"type": "tags", "title": "Ficha de aluno", "prompt": "Crie uma estrutura para um aluno com RA, nome e nota; leia os dados e mostre a ficha.", "instruction": "Marque os blocos necessários.", "tags": ["typedef struct", "int ra", "char nome[]", "float nota", "variável Aluno", "operador .", "strcpy obrigatório sempre", "array obrigatório", "ponteiro obrigatório"], "expected": ["typedef struct", "int ra", "char nome[]", "float nota", "variável Aluno", "operador ."], "feedback": "Aluno tem campos de tipos diferentes, então struct. O operador . acessa campos de variável struct normal."}, {"type": "order", "title": "Array de structs", "prompt": "Cadastre 3 alunos com RA e nome e depois liste os alunos cadastrados.", "instruction": "Monte a receita.", "blocks": ["incluir stdio.h e string.h se necessário", "definir typedef struct Aluno", "abrir main", "declarar Aluno alunos[3]", "abrir for de cadastro", "ler alunos[i].ra", "ler alunos[i].nome", "fechar cadastro", "abrir for de listagem", "imprimir alunos[i].ra e alunos[i].nome"], "expected": ["incluir stdio.h e string.h se necessário", "definir typedef struct Aluno", "abrir main", "declarar Aluno alunos[3]", "abrir for de cadastro", "ler alunos[i].ra", "ler alunos[i].nome", "fechar cadastro", "abrir for de listagem", "imprimir alunos[i].ra e alunos[i].nome"], "feedback": "Array de structs aparece quando você precisa de vários registros do mesmo molde, como vários alunos."}, {"type": "write", "title": "Struct aninhada", "prompt": "Explique a receita para modelar um Aluno que possui um Telefone com DDD e número.", "instruction": "Não escreva código completo. Descreva as structs e o acesso aos campos.", "must": [["struct", "typedef"], ["Telefone"], ["DDD", "ddd"], ["numero", "número"], ["Aluno"], ["telefone"], [".", "ponto", "aluno.telefone"]], "feedback": "A receita: criar uma struct Telefone, colocar um campo Telefone dentro de Aluno e acessar com aluno.telefone.DDD e aluno.telefone.numero."}]}, {"id": "nivel-9", "title": "Nível 9 - Ponteiros e endereçamento", "badge": "Ponteiros", "objective": "Traduzir enunciados de memória em receita: endereço, ponteiro, desreferenciação e referência.", "lesson": "Ponteiro guarda endereço. & pega endereço. * na declaração cria ponteiro; * no uso acessa o valor apontado. -> acessa campo de struct através de ponteiro.", "concepts": ["RAM", "endereço", "&", "*", "%p", "scanf", "passagem por referência", "->"], "tasks": [{"type": "tags", "title": "Endereço de variável", "prompt": "Declare uma variável inteira e mostre seu endereço de memória.", "instruction": "Marque os blocos necessários.", "tags": ["int valor", "&valor", "%p", "printf", "scanf", "array", "struct", "for"], "expected": ["int valor", "&valor", "%p", "printf"], "feedback": "Para mostrar endereço, use operador & e formatador de ponteiro %p."}, {"type": "order", "title": "Função altera valor original", "prompt": "Crie uma receita para uma função que receba o endereço de um inteiro e altere seu valor original.", "instruction": "Monte a ordem do esqueleto.", "blocks": ["declarar protótipo com parâmetro int*", "abrir main", "declarar int valor", "chamar função passando &valor", "imprimir valor após a função", "definir função com int* p", "usar *p para alterar o conteúdo", "retornar ao main"], "expected": ["declarar protótipo com parâmetro int*", "abrir main", "declarar int valor", "chamar função passando &valor", "imprimir valor após a função", "definir função com int* p", "usar *p para alterar o conteúdo", "retornar ao main"], "feedback": "Passagem por referência: o main envia o endereço com &, a função recebe int* e altera o conteúdo usando *p."}, {"type": "write", "title": "Ponteiro para struct", "prompt": "Explique a receita para acessar RA e nome de um Aluno usando Aluno* p_aluno.", "instruction": "Diga o papel de &, do ponteiro e do operador ->.", "must": [["Aluno*", "ponteiro"], ["&aluno", "endereço"], ["->"], ["RA", "ra"], ["nome"]], "feedback": "A receita: criar Aluno aluno, criar Aluno* p_aluno = &aluno, acessar campos com p_aluno->RA e p_aluno->nome."}]}, {"id": "nivel-10", "title": "Nível 10 - Tasks mistas de Engenharia de Software", "badge": "Integração", "objective": "Praticar enunciados que misturam várias partes da matéria, como em prova e projetos reais.", "lesson": "Problemas reais misturam entrada, validação, repetição, struct, array, função e saída. A habilidade é separar responsabilidades antes de escrever código.", "concepts": ["integração", "arquitetura do código", "responsabilidades", "main", "funções auxiliares"], "tasks": [{"type": "tags", "title": "Mini sistema de alunos", "prompt": "Cadastre 5 alunos com RA, nome e nota; calcule a média geral usando uma função; liste os alunos aprovados com nota >= 7.", "instruction": "Marque os blocos necessários.", "tags": ["typedef struct Aluno", "array de Aluno", "for de cadastro", "função de média", "if de aprovado", "printf", "scanf", "ponteiro obrigatório", "switch obrigatório", "matriz"], "expected": ["typedef struct Aluno", "array de Aluno", "for de cadastro", "função de média", "if de aprovado", "printf", "scanf"], "feedback": "Aqui tem entidade heterogênea, coleção, repetição, função e decisão. É um excelente treino de prova."}, {"type": "order", "title": "Arquitetura de mini sistema", "prompt": "Monte o esqueleto de um programa com menu: 1 cadastrar alunos, 2 listar alunos, 3 calcular média, 0 sair.", "instruction": "Monte a ordem do esqueleto.", "blocks": ["incluir bibliotecas", "definir struct Aluno", "declarar protótipos das funções", "abrir main", "declarar array de alunos e controle de quantidade", "abrir do while do menu", "mostrar menu e ler opção", "usar switch(opcao)", "case cadastrar chama função", "case listar chama função", "case média chama função", "while(opcao != 0)", "definir funções após o main"], "expected": ["incluir bibliotecas", "definir struct Aluno", "declarar protótipos das funções", "abrir main", "declarar array de alunos e controle de quantidade", "abrir do while do menu", "mostrar menu e ler opção", "usar switch(opcao)", "case cadastrar chama função", "case listar chama função", "case média chama função", "while(opcao != 0)", "definir funções após o main"], "feedback": "Esse é o esqueleto de um sistema simples: structs + array + menu + switch + funções."}, {"type": "write", "title": "Plano antes do código", "prompt": "Receita para: ler 8 caracteres em um array, percorrer com ponteiro e imprimir endereço + valor de cada posição.", "instruction": "Escreva a receita em passos, mencionando array, ponteiro, for, %p e *.", "must": [["char", "array"], ["ponteiro", "char*"], ["for"], ["%p"], ["*", "desreferenciar", "valor apontado"], ["incrementar", "p++", "próxima posição"]], "feedback": "Receita esperada: declarar array de char, apontar char* para o início, usar for, imprimir endereço com %p e valor com *p, depois incrementar o ponteiro."}]}, {"id": "prova-final", "title": "Prova final - montar o esqueleto sem ver solução", "badge": "Prova", "objective": "Provar que você consegue transformar enunciados grandes em receita técnica.", "lesson": "A prova não mede só saber sintaxe. Mede se você consegue arquitetar a solução antes de codar.", "concepts": ["prova", "receita", "esqueleto", "integração"], "tasks": [{"type": "write", "title": "Questão 1 - Função + if", "prompt": "Leia três números e use uma função maiorDeTres() para retornar o maior. Monte a receita completa.", "instruction": "Não escreva a solução completa; escreva a arquitetura: protótipo, main, variáveis, chamada, função, ifs e retorno.", "must": [["protótipo", "prototipo"], ["main"], ["três", "3"], ["scanf", "ler"], ["maiorDeTres"], ["if"], ["return", "retornar"]], "feedback": "A arquitetura precisa separar leitura no main e comparação dentro da função maiorDeTres."}, {"type": "write", "title": "Questão 2 - Array + função", "prompt": "Leia 10 valores em um vetor e use uma função para calcular a média. Monte a receita completa.", "instruction": "Diga quais blocos entram e em que responsabilidade ficam.", "must": [["array", "vetor"], ["10"], ["for"], ["scanf"], ["função", "funcao"], ["média", "media"], ["return", "retornar"]], "feedback": "Precisa de vetor, for de leitura, função que percorre o vetor e retorna média, e main imprimindo o resultado."}, {"type": "write", "title": "Questão 3 - Struct + array + filtro", "prompt": "Cadastre 5 produtos com código, nome e preço. Depois liste apenas os produtos com preço acima de 100. Monte a receita.", "instruction": "Foque em struct, array de struct, for e if.", "must": [["struct", "typedef"], ["código", "codigo"], ["nome"], ["preço", "preco"], ["array", "vetor"], ["for"], ["if"], ["100"]], "feedback": "Produto é heterogêneo; vários produtos pedem array de struct; filtro por preço pede if dentro do for."}, {"type": "write", "title": "Questão 4 - Ponteiro e referência", "prompt": "Crie uma função reajustar() que receba o endereço de um preço e aplique aumento de 10%. Monte a receita.", "instruction": "Mencione parâmetro ponteiro, chamada com &, alteração com * e retorno void se fizer sentido.", "must": [["void", "sem retorno"], ["ponteiro", "float*"], ["&"], ["*"], ["10%", "0.10", "1.10"], ["preço", "preco"]], "feedback": "Como a função altera o valor original pelo endereço, faz sentido receber float* e usar *p para modificar."}]}];
-    const STORAGE_KEY = 'treino_esqueleto_c_v4_sem_recarregar';
-    let state = loadState();
-    let currentLevelIndex = Math.min(state.currentLevel ?? state.unlocked ?? 0, state.unlocked ?? 0, LEVELS.length - 1);
+  <section class="level" id="level4" data-level="4">
+    <div class="levelHead"><div><span class="badge">Nível 4</span><h2>Entrada/saída, strings, condicionais, laços e funções</h2><p>O final da Aula 1, agora tratado como conteúdo essencial.</p></div><div class="status" data-status>Bloqueado</div></div>
+    <div class="levelBody">
+      <div class="grid two"><div class="card"><h3><code>printf</code>: saída de dados</h3><p><code>printf(string)</code> imprime no terminal. A string pode conter especificadores de formato, substituídos pelos valores posteriores na mesma ordem.</p><pre><code>printf("Ola mundo!");
+printf("Valor: %d, Texto: %s", 100, "cem");</code></pre></div><div class="card"><h3><code>scanf</code>: entrada de dados</h3><p><code>scanf(string, point*)</code> lê dados do terminal e grava no endereço da variável. Por isso usamos <code>&</code> em variáveis comuns.</p><pre><code>int numero;
+printf("Digite um numero: ");
+scanf("%d", &numero);</code></pre><p class="quote"><b>Tradução técnica:</b> <code>scanf</code> precisa do endereço de memória do espaço que será preenchido.</p></div></div>
+      <div class="card"><h3>Strings em C</h3><p>C não implementa <code>string</code> nativa. Para texto, você declara array de caracteres com espaço suficiente.</p><pre><code>#include &lt;stdio.h&gt;
+int main(int argc, char const *argv[]) {
+    char palavra[20] = "algoritmo";
+    printf("%s", palavra);
+    return 0;
+}</code></pre><p>Para leitura de texto, o PDF reforça que se trabalha com array de caracteres. Para textos com espaço, veremos <code>%[^\n]</code> também na aula de structs.</p></div>
+      <div class="grid two"><div class="card"><h3>Desvios condicionais</h3><pre><code>// IF
+if (valor1 &gt; valor2) {
+    printf("primeiro valor e maior");
+} else {
+    printf("segundo valor e maior ou igual");
+}
 
-    function loadState(){
-      const empty={unlocked:0, completed:{}, tasks:{}, drafts:{}, currentLevel:0};
-      try{ const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)); return saved?{...empty,...saved,completed:saved.completed||{},tasks:saved.tasks||{},drafts:saved.drafts||{}}:empty; }
-      catch(e){ return empty; }
+// SWITCH
+switch (opcao) {
+    case 1: printf("opcao 1"); break;
+    case 2: printf("opcao 2"); break;
+    case 3: printf("opcao 3"); break;
+    default: printf("nenhuma opcao!"); break;
+}</code></pre></div><div class="card"><h3>Laços de repetição</h3><pre><code>// FOR
+for (int i = 0; i &lt; 10; i++) {
+    printf("%d", i);
+}
+
+// WHILE
+int contador = 0;
+while (contador &lt; 10) {
+    contador++;
+    printf("%d", contador);
+}
+
+// DO WHILE
+int contador = 0;
+do {
+    contador++;
+    printf("%d", contador);
+} while(contador &lt; 10);</code></pre></div></div>
+      <div class="card"><h3>Funções e prototipação</h3><p>Se a função retorna algo, indique o tipo. Se não retorna, use <code>void</code>. Tradicionalmente, funções devem ser declaradas antes do <code>main</code>; se ficarem depois, faça o protótipo no cabeçalho.</p><pre><code>#include &lt;stdio.h&gt;
+float soma(float, float); // prototipo
+
+int main(int argc, char const *argv[]) {
+    float resultado = soma(10, 20);
+    printf("%f", resultado);
+    return 0;
+}
+
+float soma(float valor1, float valor2) {
+    return valor1 + valor2;
+}</code></pre></div>
+      <div class="card"><h3>Prática de código</h3><p>Escreva um programa que leia dois números, use <code>if</code> para dizer qual é maior, e use uma função <code>maior()</code> para retornar o maior valor.</p><textarea data-keywords="#include,stdio.h,int main,scanf,printf,if,return,maior" placeholder="Digite seu código aqui..."></textarea><div class="btns"><button class="btn secondary" onclick="checkKeywords(this)">Conferir estrutura</button><button class="btn secondary" onclick="toggleAnswer(this)">Ver uma solução</button></div><div class="answer quote"><pre><code>#include &lt;stdio.h&gt;
+int maior(int, int);
+
+int main() {
+    int a, b;
+    scanf("%d", &a);
+    scanf("%d", &b);
+    printf("Maior: %d", maior(a, b));
+    return 0;
+}
+
+int maior(int x, int y) {
+    if (x &gt; y) return x;
+    return y;
+}</code></pre></div></div>
+      <div class="card"><h3>Quiz</h3><div class="quiz" data-quiz="q4">
+        <div class="q" data-answer="b"><strong>1. Em <code>scanf("%d", &numero)</code>, o segundo argumento é:</strong><label><input name="q4_1" type="radio" value="a"> o valor literal de <code>numero</code>.</label><label><input name="q4_1" type="radio" value="b"> o endereço de memória da variável.</label><label><input name="q4_1" type="radio" value="c"> uma string nativa.</label><label><input name="q4_1" type="radio" value="d"> um retorno de função.</label></div>
+        <div class="q" data-answer="d"><strong>2. Em C, texto é normalmente representado como:</strong><label><input name="q4_2" type="radio" value="a"> <code>string nome;</code></label><label><input name="q4_2" type="radio" value="b"> <code>boolean texto;</code></label><label><input name="q4_2" type="radio" value="c"> <code>collection char;</code></label><label><input name="q4_2" type="radio" value="d"> array de caracteres, como <code>char palavra[20]</code>.</label></div>
+        <div class="q" data-answer="a"><strong>3. Se uma função for definida depois do <code>main</code>, o PDF indica que:</strong><label><input name="q4_3" type="radio" value="a"> deve-se prototipar a função no cabeçalho do arquivo.</label><label><input name="q4_3" type="radio" value="b"> a função não pode retornar valor.</label><label><input name="q4_3" type="radio" value="c"> ela deve virar <code>#define</code>.</label><label><input name="q4_3" type="radio" value="d"> é obrigatório usar <code>switch</code>.</label></div>
+      </div><div class="btns"><button class="btn" onclick="checkQuiz('q4')">Conferir quiz</button></div><div id="q4_result" class="result"></div></div>
+      <div class="checkpoint"><button class="btn good" onclick="finishLevel(4)">Concluir nível 4</button><div class="result" id="finish4"></div></div>
+    </div>
+  </section>
+
+  <section class="level" id="level5" data-level="5">
+    <div class="levelHead"><div><span class="badge">Nível 5</span><h2>Dados homogêneos: vetores, arrays e matrizes</h2><p>Aula 2 completa: da ideia de “massa de dados” até matriz com laços aninhados.</p></div><div class="status" data-status>Bloqueado</div></div>
+    <div class="levelBody">
+      <div class="grid two"><div class="card"><h3>Homogêneo = mesmo tipo</h3><p>Estruturas homogêneas são alocações serializadas na memória. Elas guardam uma massa de dados do mesmo tipo e cada posição é indexada.</p><p class="quote"><b>Frase de prova:</b> Uma estrutura homogênea armazena múltiplos elementos do mesmo tipo, organizados em posições indexadas.</p></div><div class="card"><h3>Dimensões</h3><table><tr><th>Dimensão</th><th>Nome conceitual</th><th>Exemplo</th></tr><tr><td>1 dimensão</td><td>vetor</td><td><code>int valores[10];</code></td></tr><tr><td>2 dimensões</td><td>matriz</td><td><code>char jogoDaVelha[3][3];</code></td></tr><tr><td>N dimensões</td><td>multidimensional</td><td><code>double cubo[5][5][5];</code></td></tr></table><p>Para a linguagem, tudo se resume a arrays.</p></div></div>
+      <div class="card"><h3>Arrays em C</h3><pre><code>int valores[10];
+valores[0] = 10;
+valores[2] = 11;
+valores[9] = 1000;
+
+printf("%d", valores[0]);</code></pre><p>Ao declarar <code>int valores[10]</code>, o computador aloca 10 posições na memória. Os índices começam em <code>0</code> e vão até <code>quantidade total - 1</code>, ou seja, <code>9</code>.</p><p class="danger quote"><b>Pegadinha:</b> no exemplo do PDF, <code>valores[1]</code> é impresso sem ter sido atribuído. Isso pode revelar lixo de memória/valor indefinido. Isso é excelente para prova.</p></div>
+      <div class="grid two"><div class="card"><h3>For com vetor</h3><pre><code>int valores[10];
+for (int i = 0; i &lt; 10; i++) {
+    printf("Informe um valor: ");
+    scanf("%d", &valores[i]);
+}
+for (int i = 0; i &lt; 10; i++) {
+    printf("%d ", valores[i]);
+}</code></pre><p>A variável <code>i</code> controla a posição acessada.</p></div><div class="card"><h3>Matrizes em C</h3><pre><code>char jogoDaVelha[3][3];
+jogoDaVelha[0][0] = 'X';
+jogoDaVelha[2][1] = 'O';</code></pre><p>Para acessar matriz, você precisa informar exatamente os índices das dimensões. Uma matriz 3x3 tem 9 posições.</p></div></div>
+      <div class="card"><h3>Laços aninhados em matriz</h3><pre><code>for (int i = 0; i &lt; 3; i++) {
+    for (int j = 0; j &lt; 3; j++) {
+        char simbolo = (i+j) % 2 == 0 ? 'X' : 'O';
+        jogoDaVelha[i][j] = simbolo;
     }
-    function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); updateProgress(); renderNav(); }
-    function saveDraft(key,patch){state.drafts[key]={...(state.drafts[key]||{}),...patch};try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){toast('Não consegui salvar este rascunho no navegador.');}}
-    function resetProgress(silent){ state = {unlocked:0, completed:{}, tasks:{}, drafts:{}, currentLevel:0}; currentLevelIndex=0; localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); renderAll(); if(!silent) toast('Treino reiniciado. Comece pelo Nível 0.'); }
-    function unlockAll(){ state.unlocked = LEVELS.length-1; saveState(); renderAll(); toast('Todos os níveis foram desbloqueados.'); }
-
-    function normalize(s){return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();}
-    function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
-    function levelTaskKey(levelIdx, taskIdx){ return `${LEVELS[levelIdx].id}:${taskIdx}`; }
-    function isTaskDone(levelIdx, taskIdx){ return !!state.tasks[levelTaskKey(levelIdx, taskIdx)]; }
-    function markTaskDone(levelIdx, taskIdx, wrap){
-      const taskKey = levelTaskKey(levelIdx, taskIdx);
-      const wasCompleted = !!state.completed[LEVELS[levelIdx].id];
-      const beforeUnlocked = state.unlocked;
-
-      state.tasks[taskKey] = true;
-
-      const completedNow = isLevelDone(levelIdx);
-      if(completedNow){
-        state.completed[LEVELS[levelIdx].id] = true;
-        if(levelIdx + 1 < LEVELS.length){
-          state.unlocked = Math.max(state.unlocked, levelIdx + 1);
+}</code></pre><p>Uma variável de controle para cada dimensão: <code>i</code> para linha, <code>j</code> para coluna.</p></div>
+      <div class="card"><h3>Prática obrigatória</h3><p>Crie um vetor com 5 inteiros, preencha com <code>scanf</code> e imprima apenas os valores pares.</p><textarea data-keywords="int,vetor,for,scanf,&,%,printf,if" placeholder="Seu código..."></textarea><div class="btns"><button class="btn secondary" onclick="checkKeywords(this)">Conferir estrutura</button><button class="btn secondary" onclick="toggleAnswer(this)">Ver solução</button></div><div class="answer quote"><pre><code>#include &lt;stdio.h&gt;
+int main() {
+    int vetor[5];
+    for (int i = 0; i &lt; 5; i++) {
+        scanf("%d", &vetor[i]);
+    }
+    for (int i = 0; i &lt; 5; i++) {
+        if (vetor[i] % 2 == 0) {
+            printf("%d ", vetor[i]);
         }
-      }
+    }
+    return 0;
+}</code></pre></div></div>
+      <div class="card"><h3>Quiz</h3><div class="quiz" data-quiz="q5">
+        <div class="q" data-answer="d"><strong>1. <code>int valores[10]</code> aloca:</strong><label><input name="q5_1" type="radio" value="a"> 9 posições, de 1 a 9.</label><label><input name="q5_1" type="radio" value="b"> 11 posições, de 0 a 10.</label><label><input name="q5_1" type="radio" value="c"> 10 posições, de 1 a 10.</label><label><input name="q5_1" type="radio" value="d"> 10 posições, de 0 a 9.</label></div>
+        <div class="q" data-answer="a"><strong>2. <code>double cubo[5][5][5]</code> possui quantas posições?</strong><label><input name="q5_2" type="radio" value="a"> 125.</label><label><input name="q5_2" type="radio" value="b"> 15.</label><label><input name="q5_2" type="radio" value="c"> 25.</label><label><input name="q5_2" type="radio" value="d"> 555.</label></div>
+        <div class="q" data-answer="c"><strong>3. Para percorrer uma matriz 3x3 inteira, o mais adequado é:</strong><label><input name="q5_3" type="radio" value="a"> um único <code>scanf</code>.</label><label><input name="q5_3" type="radio" value="b"> um <code>switch</code> sem índices.</label><label><input name="q5_3" type="radio" value="c"> dois laços, um para cada dimensão.</label><label><input name="q5_3" type="radio" value="d"> uma struct com <code>typedef</code>.</label></div>
+      </div><div class="btns"><button class="btn" onclick="checkQuiz('q5')">Conferir quiz</button></div><div id="q5_result" class="result"></div></div>
+      <div class="checkpoint"><button class="btn good" onclick="finishLevel(5)">Concluir nível 5</button><div class="result" id="finish5"></div></div>
+    </div>
+  </section>
 
-      try{
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      } catch(e){
-        toast('Não consegui salvar no navegador, mas mantive a conclusão nesta tela.');
-      }
+  <section class="level" id="level6" data-level="6">
+    <div class="levelHead"><div><span class="badge">Nível 6</span><h2>Dados heterogêneos: structs, typedef, strings, aninhamento e array de structs</h2><p>A parte de registros/structs da Aula 2 sem pular nada importante.</p></div><div class="status" data-status>Bloqueado</div></div>
+    <div class="levelBody">
+      <div class="grid two"><div class="card"><h3>Heterogêneo = campos diferentes</h3><p>Estruturas heterogêneas armazenam múltiplos valores diferentes em um único arranjo. Elas não são uma simples sequência serializada como um array; funcionam como um nó de propriedades.</p><p>Analogia do PDF: um prontuário médico com número, nome, data, telefone, médico, limitações e laudo.</p></div><div class="card"><h3>Struct como molde</h3><pre><code>struct ProntuarioMedico {
+    int numero;
+    char nomeCompleto[255];
+    char dataAbertura[10];
+    char telefone[16];
+    char laudoClinico[1024];
+};
 
-      // Não re-renderiza o nível inteiro. Isso evitava a sensação de “recarregar”
-      // e impedia você de ver a confirmação logo depois de acertar.
-      updateProgress();
-      renderNav();
-      decorateTaskAsDone(levelIdx, taskIdx, wrap);
-      refreshLevelFooter(levelIdx);
+struct ProntuarioMedico prontuario;</code></pre><p>A struct define o molde; a variável cria uma instância desse molde.</p></div></div>
+      <div class="grid two"><div class="card"><h3><code>typedef struct</code></h3><pre><code>typedef struct {
+    int numero;
+    char nomeCompleto[255];
+    char telefone[16];
+} ProntuarioMedico;
 
-      if(completedNow && !wasCompleted){
-        if(state.unlocked > beforeUnlocked && levelIdx + 1 < LEVELS.length){
-          toast('Nível concluído! Próximo nível liberado.');
-        } else {
-          toast('Nível concluído!');
-        }
-      } else {
-        toast('Atividade concluída e salva.');
-      }
-    }
+ProntuarioMedico prontuario;</code></pre><p>Com <code>typedef</code>, você transforma a struct em um tipo e não precisa escrever <code>struct ProntuarioMedico</code> toda vez.</p></div><div class="card"><h3>Operador ponto</h3><pre><code>prontuario.numero = 101203;
+printf("Prontuario Nº: %d", prontuario.numero);</code></pre><p>O ponto acessa um atributo da variável struct.</p></div></div>
+      <div class="card"><h3>Strings dentro de struct</h3><p>Para preencher arrays de char dentro de structs, use <code>strcpy</code> da biblioteca <code>string.h</code>. Atribuição direta em arrays de caracteres não é permitida.</p><pre><code>#include &lt;string.h&gt;
+strcpy(prontuario.dataAbertura, "01/01/2023");
+printf("%s", prontuario.dataAbertura);</code></pre></div>
+      <div class="grid two"><div class="card"><h3><code>scanf</code> em campos numéricos</h3><pre><code>scanf("%d", &prontuario.numero);</code></pre><p>Usa <code>&</code> porque é necessário passar o endereço do campo numérico.</p></div><div class="card"><h3><code>scanf</code> em arrays de char</h3><pre><code>scanf("%s", prontuario.dataAbertura);
+scanf("%[^\n]", prontuario.nomeCompleto);</code></pre><p>Não usa <code>&</code> porque o array já se comporta como ponteiro para o primeiro caractere. <code>%[^\n]</code> lê texto com espaços.</p></div></div>
+      <div class="grid two"><div class="card"><h3>Struct aninhada</h3><pre><code>typedef struct {
+    int DDD;
+    char numero[10];
+} Telefone;
 
-    function decorateTaskAsDone(levelIdx, taskIdx, wrap){
-      const taskEl = wrap || document.querySelector(`[data-level="${levelIdx}"][data-task="${taskIdx}"]`);
-      if(!taskEl) return;
-      const h3 = taskEl.querySelector('h3');
-      if(h3 && !h3.textContent.trim().startsWith('✅')){
-        h3.textContent = '✅ ' + LEVELS[levelIdx].tasks[taskIdx].title;
-      }
-      taskEl.style.borderColor = 'rgba(61,220,151,.45)';
-    }
+typedef struct {
+    int ra;
+    char nome[255];
+    Telefone telefone;
+} Aluno;
 
-    function refreshLevelFooter(levelIdx){
-      const sec = document.getElementById(LEVELS[levelIdx].id);
-      if(!sec) return;
-      const footer = sec.querySelector('.footerActions');
-      if(!footer) return;
-      const done = isLevelDone(levelIdx);
-      const mini = footer.querySelector('.mini');
-      if(mini){
-        mini.innerHTML = `<span class="statusDot ${done?'done':''}"></span> ${done?'Nível concluído. Próximo nível liberado.':'Conclua todas as atividades para desbloquear o próximo nível.'}`;
-      }
-      const actions = footer.querySelector('.actions');
-      if(actions){
-        actions.innerHTML = `${done && levelIdx+1 < LEVELS.length ? `<button type="button" class="btn good" data-next-level="${levelIdx+1}">Ir para o próximo nível</button>` : ''}<button type="button" class="btn" data-top="true">Voltar ao topo</button>`;
-        const nextBtn = actions.querySelector('[data-next-level]');
-        if(nextBtn) nextBtn.onclick = () => showLevel(levelIdx+1);
-        const topBtn = actions.querySelector('[data-top]');
-        if(topBtn) topBtn.onclick = () => scrollToTop();
-      }
-    }
-    function isLevelDone(levelIdx){ return LEVELS[levelIdx].tasks.every((_,ti)=> isTaskDone(levelIdx,ti)); }
+aluno.telefone.DDD = 44;
+strcpy(aluno.telefone.numero, "3268-5940");</code></pre></div><div class="card"><h3>Array de structs</h3><pre><code>Aluno alunos[15];
+for (int i = 0; i &lt; 15; i++) {
+    printf("Nome: ");
+    scanf("%[^\n]", alunos[i].nome);
+    printf("RA: ");
+    scanf("%d", &alunos[i].ra);
+}</code></pre><p>Aqui você junta: array + struct + índice + ponto + scanf.</p></div></div>
+      <div class="card"><h3>Prática de código</h3><p>Crie uma <code>struct Aluno</code> com RA, nome e telefone aninhado. Depois crie um array com 3 alunos e preencha com <code>for</code>.</p><textarea data-keywords="typedef,struct,Aluno,Telefone,alunos[3],for,scanf,strcpy,.,&" placeholder="Seu código..."></textarea><div class="btns"><button class="btn secondary" onclick="checkKeywords(this)">Conferir estrutura</button><button class="btn secondary" onclick="toggleAnswer(this)">Ver solução guia</button></div><div class="answer quote"><pre><code>#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
 
-    function renderAll(){ renderNav(); renderLevels(); updateProgress(); showLevel(currentLevelIndex); }
-    function renderNav(){
-      const nav=document.getElementById('navLevels'); nav.innerHTML='';
-      LEVELS.forEach((level, idx)=>{
-        const btn=document.createElement('button');
-        btn.type='button';
-        btn.className='levelBtn'+(idx>state.unlocked?' locked':'')+(state.completed[level.id]?' done':'');
-        btn.innerHTML = `${idx>state.unlocked?'🔒':'🧭'} ${idx===LEVELS.length-1?'Prova':idx} ${state.completed[level.id]?'✓':''}`;
-        btn.title=level.title;
-        btn.onclick=()=>{ if(idx>state.unlocked){ toast('Conclua o nível anterior para desbloquear este.'); return;} showLevel(idx); };
-        nav.appendChild(btn);
-      });
+typedef struct {
+    int DDD;
+    char numero[10];
+} Telefone;
+
+typedef struct {
+    int ra;
+    char nome[255];
+    Telefone telefone;
+} Aluno;
+
+int main() {
+    Aluno alunos[3];
+    for (int i = 0; i &lt; 3; i++) {
+        scanf("%d", &alunos[i].ra);
+        scanf("%s", alunos[i].nome);
+        scanf("%d", &alunos[i].telefone.DDD);
+        scanf("%s", alunos[i].telefone.numero);
     }
-    function updateProgress(){
-      const total=LEVELS.reduce((acc,l)=>acc+l.tasks.length,0);
-      const done=Object.keys(state.tasks||{}).length;
-      const pct=Math.round(done/total*100);
-      document.getElementById('barFill').style.width=pct+'%';
-      document.getElementById('progressText').textContent=`${done}/${total} atividades concluídas - ${pct}%`;
+    return 0;
+}</code></pre></div></div>
+      <div class="card"><h3>Quiz</h3><div class="quiz" data-quiz="q6">
+        <div class="q" data-answer="b"><strong>1. Uma struct é usada para:</strong><label><input name="q6_1" type="radio" value="a"> armazenar apenas valores do mesmo tipo em índice numérico.</label><label><input name="q6_1" type="radio" value="b"> definir um molde com atributos que podem ter tipos diferentes.</label><label><input name="q6_1" type="radio" value="c"> substituir o compilador.</label><label><input name="q6_1" type="radio" value="d"> criar uma string nativa.</label></div>
+        <div class="q" data-answer="d"><strong>2. Para preencher <code>aluno.nome</code>, sendo <code>char nome[255]</code>, a forma mais adequada para atribuição direta de texto no código é:</strong><label><input name="q6_2" type="radio" value="a"> <code>aluno.nome = "Ana";</code></label><label><input name="q6_2" type="radio" value="b"> <code>&aluno.nome = "Ana";</code></label><label><input name="q6_2" type="radio" value="c"> <code>printf(aluno.nome, "Ana");</code></label><label><input name="q6_2" type="radio" value="d"> <code>strcpy(aluno.nome, "Ana");</code></label></div>
+        <div class="q" data-answer="a"><strong>3. Em <code>scanf("%d", &alunos[i].ra)</code>, o <code>&</code> aparece porque:</strong><label><input name="q6_3" type="radio" value="a"> o scanf precisa do endereço do campo numérico.</label><label><input name="q6_3" type="radio" value="b"> <code>ra</code> é uma string.</label><label><input name="q6_3" type="radio" value="c"> arrays sempre precisam de <code>&</code>.</label><label><input name="q6_3" type="radio" value="d"> o operador ponto não funciona sozinho.</label></div>
+      </div><div class="btns"><button class="btn" onclick="checkQuiz('q6')">Conferir quiz</button></div><div id="q6_result" class="result"></div></div>
+      <div class="checkpoint"><button class="btn good" onclick="finishLevel(6)">Concluir nível 6</button><div class="result" id="finish6"></div></div>
+    </div>
+  </section>
+
+  <section class="level" id="level7" data-level="7">
+    <div class="levelHead"><div><span class="badge">Nível 7</span><h2>Memória, endereçamento, scanf e strings por referência</h2><p>A base da Aula 3 antes de ponteiros.</p></div><div class="status" data-status>Bloqueado</div></div>
+    <div class="levelBody">
+      <div class="grid two"><div class="card"><h3>RAM e Von Neumann</h3><p>A memória volátil/RAM armazena informações temporárias do sistema operacional e aplicativos. Ela é intermediária entre disco e processador porque é mais rápida que o armazenamento de massa.</p><p>A Arquitetura de Von Neumann permite armazenar programas no mesmo espaço de memória que os dados.</p></div><div class="card"><h3>Unidades da memória</h3><table><tr><th>Unidade</th><th>Definição no PDF</th></tr><tr><td>bit</td><td>0 ou 1</td></tr><tr><td>byte</td><td>8 bits</td></tr><tr><td>página</td><td>4096 bytes</td></tr><tr><td>segmento</td><td>256 páginas</td></tr></table></div></div>
+      <div class="card"><h3>Word, Byte e Nibble</h3><p>Uma <b>word</b> (palavra de memória) se divide em 2 <b>bytes</b>, e cada byte se divide em 2 <b>nibbles</b> (4 bits cada). O operador <code>&</code> retorna o endereço do byte inicial da variável — mas o endereçamento sozinho não sabe quantos bytes o espaçamento ocupa: é responsabilidade do programador informar o tipo/formato para o computador saber quantos bytes ler.</p></div><div class="card"><h3>Endereço absoluto, real e virtual</h3><table><tr><th>Tipo</th><th>Ideia</th></tr><tr><td>Absoluto</td><td>Associado à localização física na memória central; usado pelo processador para acessar blocos da memória física.</td></tr><tr><td>Real</td><td>Convertido para endereço absoluto por prefixação pelo hardware; há um endereço real para cada byte incorporado.</td></tr><tr><td>Virtual</td><td>Disponível para cada aplicação; convertido para real e depois absoluto. Isola a memória entre programas.</td></tr></table></div>
+      <div class="grid two"><div class="card"><h3>Vendo endereço com <code>&</code></h3><pre><code>int valor;
+printf("Endereco em Hex: %p\n", &valor);
+printf("Endereco em Dec: %d\n", &valor);</code></pre><p>O operador <code>&</code> retorna o endereço do byte inicial da variável. <code>%p</code> é o formatador de ponteiro/endereço.</p></div><div class="card"><h3>Tipo e tamanho importam</h3><p>O PDF destaca que o endereço aponta para o byte inicial, mas o programa precisa saber quantos bytes considerar. Por isso o tipo e o formatador correto são responsabilidade do programador.</p><p class="quote"><b>Exemplo:</b> se você usa <code>%c</code>, o scanf entende caractere; se usa <code>%d</code>, entende inteiro.</p></div></div>
+      <div class="card"><h3><code>scanf</code> trabalha com endereçamento</h3><pre><code>char letra;
+printf("Informe uma letra: ");
+scanf("%c", &letra);
+printf("A letra informada e: %c", letra);</code></pre><p>O valor digitado é inserido diretamente no endereço de referência do espaço de memória. O preenchimento correto depende do formatador.</p></div>
+      <div class="card"><h3>Strings, byte inicial e caractere nulo</h3><p>Strings são arrays de caracteres. Muitas funções trabalham com o endereço do byte inicial e percorrem a sequência até encontrar <code>\0</code>, o caractere nulo.</p><pre><code>char texto[20] = "Algoritmos e Logica";
+printf("Texto: %s", texto);
+//Por referência do byte inicial (mesmo resultado):
+printf("Texto: %s", &texto);</code></pre><p>O programa não imprime necessariamente todas as 20 posições; ele percorre até o limite lógico do texto, marcado por <code>\0</code>. Muitas funções preferem receber o endereço do byte inicial (referência) a receber a variável diretamente — o resultado é idêntico, pois o computador busca todos os bytes da sequência do mesmo jeito.</p></div>
+      <div class="card"><h3>Quiz</h3><div class="quiz" data-quiz="q7">
+        <div class="q" data-answer="c"><strong>1. O operador <code>&</code> retorna:</strong><label><input name="q7_1" type="radio" value="a"> o valor da variável.</label><label><input name="q7_1" type="radio" value="b"> o tipo da variável.</label><label><input name="q7_1" type="radio" value="c"> o endereço do byte inicial da variável.</label><label><input name="q7_1" type="radio" value="d"> o caractere nulo.</label></div>
+        <div class="q" data-answer="a"><strong>2. O endereço virtual é importante porque:</strong><label><input name="q7_2" type="radio" value="a"> isola a memória disponível para cada aplicação, evitando acesso direto entre programas.</label><label><input name="q7_2" type="radio" value="b"> elimina a RAM.</label><label><input name="q7_2" type="radio" value="c"> substitui o processador.</label><label><input name="q7_2" type="radio" value="d"> é sempre igual ao endereço absoluto.</label></div>
+        <div class="q" data-answer="d"><strong>3. Uma string em C é percorrida até:</strong><label><input name="q7_3" type="radio" value="a"> chegar no índice 255.</label><label><input name="q7_3" type="radio" value="b"> encontrar <code>%d</code>.</label><label><input name="q7_3" type="radio" value="c"> o compilador parar.</label><label><input name="q7_3" type="radio" value="d"> encontrar o caractere nulo <code>\0</code>.</label></div>
+      </div><div class="btns"><button class="btn" onclick="checkQuiz('q7')">Conferir quiz</button></div><div id="q7_result" class="result"></div></div>
+      <div class="checkpoint"><button class="btn good" onclick="finishLevel(7)">Concluir nível 7</button><div class="result" id="finish7"></div></div>
+    </div>
+  </section>
+
+  <section class="level" id="level8" data-level="8">
+    <div class="levelHead"><div><span class="badge">Nível 8</span><h2>Ponteiros: declaração, atribuição, scanf, desreferenciação e passagem por referência</h2><p>A parte pesada da Aula 3, com exemplos e pegadinhas.</p></div><div class="status" data-status>Bloqueado</div></div>
+    <div class="levelBody">
+      <div class="grid two"><div class="card"><h3>Definição</h3><p>Ponteiros são espaços de memória responsáveis por armazenar o endereço de outros espaços. Podem ser variáveis, constantes ou parâmetros de funções.</p><p>Embora endereço possa ser entendido como número, usar ponteiro tem vantagens: indica o tipo do espaço apontado e permite operadores específicos.</p></div><div class="card"><h3>Declaração</h3><pre><code>int* ponteiroA;
+char* ponteiroB;
+float* ponteiroC;</code></pre><p>O tipo do ponteiro indica o tipo do espaço de memória referenciado.</p></div></div>
+      <div class="card"><h3>Atribuição de ponteiros</h3><pre><code>int variavelA;
+char variavelB;
+float variavelC;
+
+int* ponteiroA = &variavelA;
+char* ponteiroB = &variavelB;
+float* ponteiroC = &variavelC;</code></pre><p class="danger quote"><b>Pegadinha:</b> atribua o endereço de acordo com o mesmo tipo. Se o ponteiro for incompatível, o computador calcula errado a quantidade de bytes referente ao espaço.</p></div>
+      <div class="grid two"><div class="card"><h3><code>scanf</code> com ponteiro</h3><pre><code>int valor;
+int* p_valor = &valor;
+printf("Informe um numero: ");
+scanf("%d", p_valor);
+printf("Endereco: %p | Valor: %d", p_valor, *p_valor);</code></pre><p>Não usa <code>&</code> no <code>scanf</code> porque <code>p_valor</code> já guarda o endereço válido.</p></div><div class="card"><h3>Recuperação com <code>*</code></h3><pre><code>int variavelA = 10;
+int* ponteiroA = &variavelA;
+printf("%p = %d", ponteiroA, *ponteiroA);</code></pre><p><code>*ponteiroA</code> acessa o valor armazenado no endereço apontado.</p></div></div>
+      <div class="card"><h3>Atribuição através do ponteiro</h3><pre><code>int variavelA = 10;
+int* ponteiroA = &variavelA;
+
+*ponteiroA = 25;
+printf("%d", variavelA); // 25</code></pre><p>Você altera o conteúdo do espaço apontado, sem usar diretamente o identificador original.</p></div>
+      <div class="card"><h3>Passagem por referência</h3><pre><code>#include &lt;stdio.h&gt;
+void funcao(char*);
+
+int main(int argc, char const *argv[]) {
+    char letra;
+    funcao(&letra);
+    printf("%c", letra);
+    return 0;
+}
+
+void funcao(char* p) {
+    *p = 'X';
+}</code></pre><p>A função recebe o endereço da variável e altera o valor original.</p></div>
+      <div class="card"><h3>Prática de código</h3><p>Crie uma função <code>trocar</code> que receba dois ponteiros de inteiro e troque os valores entre as variáveis.</p><textarea data-keywords="void,trocar,int*,*,temp,&" placeholder="Seu código..."></textarea><div class="btns"><button class="btn secondary" onclick="checkKeywords(this)">Conferir estrutura</button><button class="btn secondary" onclick="toggleAnswer(this)">Ver solução</button></div><div class="answer quote"><pre><code>void trocar(int* a, int* b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+int main() {
+    int x = 10, y = 20;
+    trocar(&x, &y);
+    return 0;
+}</code></pre></div></div>
+      <div class="card"><h3>Quiz</h3><div class="quiz" data-quiz="q8">
+        <div class="q" data-answer="b"><strong>1. Em <code>int* p = &valor</code>, <code>p</code> armazena:</strong><label><input name="q8_1" type="radio" value="a"> o valor inteiro diretamente.</label><label><input name="q8_1" type="radio" value="b"> o endereço de memória de <code>valor</code>.</label><label><input name="q8_1" type="radio" value="c"> uma string.</label><label><input name="q8_1" type="radio" value="d"> uma matriz.</label></div>
+        <div class="q" data-answer="d"><strong>2. Em <code>scanf("%d", p_valor)</code>, não usamos <code>&</code> porque:</strong><label><input name="q8_2" type="radio" value="a"> <code>scanf</code> nunca usa endereço.</label><label><input name="q8_2" type="radio" value="b"> <code>%d</code> ignora ponteiros.</label><label><input name="q8_2" type="radio" value="c"> <code>p_valor</code> é uma constante.</label><label><input name="q8_2" type="radio" value="d"> o ponteiro já contém o endereço da variável.</label></div>
+        <div class="q" data-answer="a"><strong>3. O operador <code>*</code> usado em <code>*p = 25</code>:</strong><label><input name="q8_3" type="radio" value="a"> acessa o conteúdo do endereço apontado por <code>p</code>.</label><label><input name="q8_3" type="radio" value="b"> multiplica o endereço por 25.</label><label><input name="q8_3" type="radio" value="c"> cria um novo array.</label><label><input name="q8_3" type="radio" value="d"> retorna <code>argc</code>.</label></div>
+      </div><div class="btns"><button class="btn" onclick="checkQuiz('q8')">Conferir quiz</button></div><div id="q8_result" class="result"></div></div>
+      <div class="checkpoint"><button class="btn good" onclick="finishLevel(8)">Concluir nível 8</button><div class="result" id="finish8"></div></div>
+    </div>
+  </section>
+
+  <section class="level" id="level9" data-level="9">
+    <div class="levelHead"><div><span class="badge">Nível 9</span><h2>Ponteiros com vetores, structs e ponteiro de ponteiro</h2><p>O final da Aula 3: onde geralmente estão as questões mais perigosas.</p></div><div class="status" data-status>Bloqueado</div></div>
+    <div class="levelBody">
+      <div class="card"><h3>Ponteiros trabalhando com vetores</h3><p>Ponteiros podem percorrer estruturas serializadas apenas incrementando ou decrementando seu valor. O computador calcula os bytes necessários conforme o tipo apontado.</p><pre><code>char* retornarArray() {
+    static char array[8] = {'Z', 'X', 'Q', 'A', '3', '6', '8', 'T'};
+    return array;
+}
+
+int main() {
+    char* p_array = retornarArray();
+    for (int i = 0; i &lt; 8; i++) {
+        printf("%p: %c\n", p_array, *p_array);
+        p_array++;
     }
-    function renderLevels(){
-      const cont=document.getElementById('levelsContainer'); cont.innerHTML='';
-      LEVELS.forEach((level, li)=>{
-        const sec=document.createElement('section'); sec.id=level.id; sec.className='level card';
-        sec.innerHTML = `
-          <div class="levelHeader">
-            <div>
-              <h2>${escapeHtml(level.title)}</h2>
-              <p class="note"><b>Objetivo:</b> ${escapeHtml(level.objective)}</p>
-              <p>${escapeHtml(level.lesson)}</p>
-              <div class="concepts">${level.concepts.map(c=>`<code>${escapeHtml(c)}</code>`).join('')}</div>
-            </div>
-            <span class="badge">${escapeHtml(level.badge)}</span>
-          </div>
-          <div class="tasks"></div>
-          <div class="footerActions">
-            <div class="mini"><span class="statusDot ${isLevelDone(li)?'done':''}"></span> ${isLevelDone(li)?'Nível concluído. Próximo nível liberado.':'Conclua todas as atividades para desbloquear o próximo nível.'}</div>
-            <div class="actions" style="margin-top:0">
-              ${isLevelDone(li) && li+1 < LEVELS.length ? `<button type="button" class="btn good" onclick="showLevel(${li+1})">Ir para o próximo nível</button>` : ''}
-              <button type="button" class="btn" onclick="scrollToTop()">Voltar ao topo</button>
-            </div>
-          </div>`;
-        const tasksDiv=sec.querySelector('.tasks');
-        level.tasks.forEach((task, ti)=> tasksDiv.appendChild(renderTask(task, li, ti)) );
-        cont.appendChild(sec);
-      });
-    }
-    function renderTask(task, li, ti){
-      const wrap=document.createElement('article'); wrap.className='task'; wrap.dataset.level=li; wrap.dataset.task=ti; wrap.dataset.type=task.type;
-      const done=isTaskDone(li,ti);
-      wrap.innerHTML = `
-        <div class="taskTop">
-          <div><h3>${done?'✅ ':''}${escapeHtml(task.title)}</h3><div class="taskType">${labelType(task.type)}</div></div>
-          <div class="mini">Atividade ${ti+1}/${LEVELS[li].tasks.length}</div>
-        </div>
-        <div class="prompt">${escapeHtml(task.prompt)}</div>
-        <div class="instruction">${escapeHtml(task.instruction)}</div>
-        <div class="taskBody"></div>
-        <div class="actions"></div>
-        <div class="feedback"></div>`;
-      const body=wrap.querySelector('.taskBody'); const actions=wrap.querySelector('.actions');
-      if(task.type==='tags') renderTagsTask(task, wrap, body, actions, li, ti);
-      if(task.type==='order') renderOrderTask(task, wrap, body, actions, li, ti);
-      if(task.type==='write') renderWriteTask(task, wrap, body, actions, li, ti);
-      return wrap;
-    }
-    function labelType(type){return type==='tags'?'Identificar blocos':type==='order'?'Ordenar receita':'Escrever esqueleto';}
-    function renderTagsTask(task, wrap, body, actions, li, ti){
-      const chips=document.createElement('div'); chips.className='chips';
-      const taskKey=levelTaskKey(li,ti); const draft=state.drafts[taskKey]||{};
-      task.tags.forEach(tag=>{
-        const b=document.createElement('button'); b.type='button'; b.className='chip'+((draft.selected||[]).includes(tag)?' selected':''); b.textContent=tag; b.onclick=()=>{b.classList.toggle('selected');saveDraft(taskKey,{selected:[...chips.querySelectorAll('.selected')].map(el=>el.textContent)});}; chips.appendChild(b);
-      });
-      body.appendChild(chips);
-      actions.innerHTML = `<button type="button" class="btn primary">Conferir blocos</button><button type="button" class="btn warn">Dica</button>`;
-      actions.children[0].onclick=()=>{
-        const selected=[...chips.querySelectorAll('.selected')].map(b=>b.textContent);
-        const exp=task.expected;
-        const ok = exp.every(x=>selected.includes(x)) && selected.every(x=>exp.includes(x));
-        showFeedback(wrap, ok, ok? task.feedback : `Ainda não. Compare sua seleção com o enunciado: o que entra, o que guarda, o que processa, o que sai? Evite marcar blocos que o enunciado não pediu.`);
-        if(ok) markTaskDone(li,ti,wrap);
-      };
-      actions.children[1].onclick=()=> showFeedback(wrap, null, `Dica: procure verbos e substantivos do enunciado. "Leia" costuma indicar entrada. "Mostre" indica saída. "Maior/se" indica decisão. "Vários/10" pode indicar repetição ou array.`, 'hint');
-    }
-    function renderOrderTask(task, wrap, body, actions, li, ti){
-      const source=document.createElement('div'); source.className='chips source';
-      const answer=document.createElement('div'); answer.className='answerBox'; answer.innerHTML='<span class="mini">Sua ordem aparecerá aqui. Clique em um bloco para remover.</span>';
-      const taskKey=levelTaskKey(li,ti); const draft=state.drafts[taskKey]||{};
-      const blocks=shuffle(task.blocks);
-      blocks.forEach(block=>{
-        const b=document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=block; b.onclick=()=>{
-          b.classList.add('used'); addAnswerChip(answer, block, b, taskKey);
-        }; source.appendChild(b);
-      });
-      body.appendChild(source); body.appendChild(answer);
-      (draft.order||[]).forEach(text=>{const sourceBtn=[...source.querySelectorAll('.chip')].find(b=>b.textContent===text&&!b.classList.contains('used'));if(sourceBtn){sourceBtn.classList.add('used');addAnswerChip(answer,text,sourceBtn,taskKey,false);}});
-      actions.innerHTML = `<button type="button" class="btn primary">Conferir ordem</button><button type="button" class="btn">Limpar</button><button type="button" class="btn warn">Dica</button>`;
-      actions.children[0].onclick=()=>{
-        const selected=[...answer.querySelectorAll('button.chip')].map(b=>b.textContent);
-        const ok=JSON.stringify(selected)===JSON.stringify(task.expected);
-        showFeedback(wrap, ok, ok? task.feedback : `Ainda não. Tente pensar na sequência: preparar ambiente -> declarar dados -> entrada -> processamento -> saída -> finalização.`);
-        if(ok) markTaskDone(li,ti,wrap);
-      };
-      actions.children[1].onclick=()=>{ [...source.querySelectorAll('.chip')].forEach(b=>b.classList.remove('used')); answer.innerHTML='<span class="mini">Sua ordem aparecerá aqui. Clique em um bloco para remover.</span>'; saveDraft(taskKey,{order:[]}); };
-      actions.children[2].onclick=()=> showFeedback(wrap, null, `Dica: uma receita não começa pelo if ou pelo for. Antes você precisa ter variáveis e dados disponíveis.`, 'hint');
-    }
-    function addAnswerChip(answer, text, sourceBtn, taskKey, persist=true){
-      if(answer.querySelector('.mini')) answer.innerHTML='';
-      const b=document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=text; b.onclick=()=>{ b.remove(); sourceBtn.classList.remove('used'); if(!answer.querySelector('button')) answer.innerHTML='<span class="mini">Sua ordem aparecerá aqui. Clique em um bloco para remover.</span>'; saveDraft(taskKey,{order:[...answer.querySelectorAll('button.chip')].map(el=>el.textContent)}); };
-      answer.appendChild(b);
-      if(persist) saveDraft(taskKey,{order:[...answer.querySelectorAll('button.chip')].map(el=>el.textContent)});
-    }
-    function renderWriteTask(task, wrap, body, actions, li, ti){
-      const ta=document.createElement('textarea'); ta.placeholder='Escreva aqui sua receita em passos. Ex.: 1) declarar... 2) ler... 3) chamar função...';
-      const taskKey=levelTaskKey(li,ti); const draft=state.drafts[taskKey]||{}; ta.value=draft.text||''; ta.addEventListener('input',()=>saveDraft(taskKey,{text:ta.value}));
-      body.appendChild(ta);
-      const checklist=document.createElement('div'); checklist.className='score mini'; checklist.textContent='Critério: sua resposta precisa conter as ideias-chave do enunciado, não palavras exatas.'; body.appendChild(checklist);
-      actions.innerHTML = `<button type="button" class="btn primary">Conferir palavras-chave</button><button type="button" class="btn warn">Ver dica</button><button type="button" class="btn">Ver critério</button>`;
-      actions.children[0].onclick=()=>{
-        const txt=normalize(ta.value);
-        let missing=[];
-        task.must.forEach(group=>{
-          const ok=group.some(word=> txt.includes(normalize(word)) );
-          if(!ok) missing.push(group.join(' / '));
-        });
-        const ok=missing.length===0;
-        showFeedback(wrap, ok, ok? task.feedback : `Está faltando aparecer na sua receita: ${missing.join('; ')}. Reescreva pensando nos blocos do funil.`);
-        if(ok) markTaskDone(li,ti,wrap);
-      };
-      actions.children[1].onclick=()=> showFeedback(wrap, null, `Dica: escreva em passos curtos. Não tente programar. Use palavras como declarar, ler, calcular, comparar, repetir, chamar função, retornar e imprimir.`, 'hint');
-      actions.children[2].onclick=()=> showFeedback(wrap, null, `Critérios esperados: ${task.must.map(g=>`[${g.join(' ou ')}]`).join(', ')}`, 'hint');
-    }
-    function showFeedback(wrap, ok, msg, forced){
-      const f=wrap.querySelector('.feedback'); f.className='feedback show '+(forced?forced:(ok?'ok':'no'));
-      f.innerHTML = `${ok===true?'✅': ok===false?'⚠️':'💡'} ${escapeHtml(msg)}`;
-    }
-    function showLevel(idx){
-      currentLevelIndex=idx;
-      state.currentLevel=idx;
-      try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}
-      document.querySelectorAll('.level').forEach((el,i)=>el.classList.toggle('active', i===idx));
-      setTimeout(()=>document.getElementById(LEVELS[idx].id).scrollIntoView({behavior:'smooth', block:'start'}), 30);
-    }
-    function scrollToTop(){ window.scrollTo({top:0, behavior:'smooth'}); }
-    function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 3200); }
-    function escapeHtml(s){ return String(s).replace(/[&<>'"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
-    document.addEventListener('click', function(ev){
-      const btn = ev.target.closest && ev.target.closest('button');
-      if(btn) ev.preventDefault();
-    });
-    renderAll();
-  </script>
+    return 0;
+}</code></pre><p><code>p_array++</code> avança para o próximo caractere porque o ponteiro é <code>char*</code>.</p></div>
+      <div class="grid two"><div class="card"><h3>Ponteiro de struct</h3><pre><code>typedef struct {
+    int RA;
+    char nome[255];
+} Aluno;
+
+Aluno aluno;
+Aluno* p_aluno = &aluno;
+p_aluno-&gt;RA = 123456;
+strcpy(p_aluno-&gt;nome, "Joao da Silva");</code></pre><p>Com variável normal, use ponto: <code>aluno.RA</code>. Com ponteiro para struct, use seta: <code>p_aluno-&gt;RA</code>.</p></div><div class="card"><h3>Ponteiro de ponteiro</h3><pre><code>int valor = 3;
+int* p_valor = &valor;
+int** pp_valor = &p_valor;
+
+printf("Ponteiro: %p\n", *pp_valor);
+printf("Valor: %d", **pp_valor);</code></pre><p><code>int**</code> armazena o endereço de um ponteiro. <code>*pp_valor</code> acessa o ponteiro original; <code>**pp_valor</code> acessa o valor final.</p></div></div>
+      <div class="card"><h3>Comparação final de operadores</h3><table><tr><th>Operador</th><th>Uso</th><th>Exemplo</th></tr><tr><td><code>&</code></td><td>pega endereço</td><td><code>&valor</code></td></tr><tr><td><code>*</code> na declaração</td><td>declara ponteiro</td><td><code>int* p</code></td></tr><tr><td><code>*</code> no uso</td><td>desreferencia/acessa conteúdo</td><td><code>*p = 10</code></td></tr><tr><td><code>.</code></td><td>acessa campo de struct normal</td><td><code>aluno.ra</code></td></tr><tr><td><code>-&gt;</code></td><td>acessa campo de struct via ponteiro</td><td><code>p_aluno-&gt;ra</code></td></tr><tr><td><code>[]</code></td><td>acessa índice de array</td><td><code>alunos[i]</code></td></tr></table></div>
+      <div class="card"><h3>Quiz de identificação pesada</h3><div class="quiz" data-quiz="q9">
+        <div class="q" data-answer="c"><strong>1. Em <code>p_array++</code>, se <code>p_array</code> é <code>char*</code>, o ponteiro:</strong><label><input name="q9_1" type="radio" value="a"> avança para uma struct.</label><label><input name="q9_1" type="radio" value="b"> volta ao início do array.</label><label><input name="q9_1" type="radio" value="c"> avança para o próximo espaço de caractere na serialização.</label><label><input name="q9_1" type="radio" value="d"> imprime <code>argc</code>.</label></div>
+        <div class="q" data-answer="a"><strong>2. Para acessar <code>RA</code> por <code>Aluno* p_aluno</code>, usa-se:</strong><label><input name="q9_2" type="radio" value="a"> <code>p_aluno-&gt;RA</code></label><label><input name="q9_2" type="radio" value="b"> <code>p_aluno.RA</code></label><label><input name="q9_2" type="radio" value="c"> <code>&p_aluno.RA</code></label><label><input name="q9_2" type="radio" value="d"> <code>p_aluno[RA]</code></label></div>
+        <div class="q" data-answer="d"><strong>3. Em <code>int** pp_valor</code>, temos:</strong><label><input name="q9_3" type="radio" value="a"> um array de inteiros.</label><label><input name="q9_3" type="radio" value="b"> uma string de ponteiros.</label><label><input name="q9_3" type="radio" value="c"> uma constante sem tipo.</label><label><input name="q9_3" type="radio" value="d"> um ponteiro que armazena endereço de outro ponteiro.</label></div>
+      </div><div class="btns"><button class="btn" onclick="checkQuiz('q9')">Conferir quiz</button></div><div id="q9_result" class="result"></div></div>
+      <div class="card"><h3>Desafio integrador</h3><p>Explique por que <code>p_aluno-&gt;RA</code> não usa <code>*p_aluno.RA</code>. Use os termos: ponteiro, struct, operador seta e atributo.</p><textarea data-keywords="ponteiro,struct,seta,atributo" placeholder="Sua explicação..."></textarea><div class="btns"><button class="btn secondary" onclick="checkKeywords(this)">Conferir palavras-chave</button><button class="btn secondary" onclick="toggleAnswer(this)">Ver modelo</button></div><div class="answer quote"><b>Modelo:</b> Como <code>p_aluno</code> é um ponteiro para uma struct, o acesso aos atributos é feito pelo operador seta <code>-&gt;</code>, que combina a referência ao endereço da struct com o acesso ao atributo desejado.</div></div>
+      <div class="checkpoint"><button class="btn good" onclick="finishLevel(9)">Concluir nível 9</button><div class="result" id="finish9"></div></div>
+    </div>
+  </section>
+
+  <section class="level" id="level10" data-level="10">
+    <div class="levelHead"><div><span class="badge">Prova Final</span><h2>Simulado das 3 aulas</h2><p>Faça sem consultar. Depois use o relatório para saber o que estudar.</p></div><div class="status" data-status>Bloqueado</div></div>
+    <div class="levelBody">
+      <div class="card"><h3>Parte A - Múltipla escolha</h3><div class="quiz" data-quiz="final">
+        <div class="q" data-topic="C básico" data-answer="c"><strong>1. A melhor justificativa para estudar C em Estrutura de Dados é:</strong><label><input name="f_1" type="radio" value="a"> C evita que o aluno pense em memória.</label><label><input name="f_1" type="radio" value="b"> C possui objetos e listas nativas.</label><label><input name="f_1" type="radio" value="c"> C aproxima o aluno de tipos, endereços, memória e organização de dados.</label><label><input name="f_1" type="radio" value="d"> C é usada apenas em navegadores.</label></div>
+        <div class="q" data-topic="Tipos/constantes" data-answer="a"><strong>2. Sobre <code>#define</code>, assinale a correta:</strong><label><input name="f_2" type="radio" value="a"> É uma diretiva de pré-processador e não possui tipo associado.</label><label><input name="f_2" type="radio" value="b"> Sempre aloca memória durante execução.</label><label><input name="f_2" type="radio" value="c"> É igual a <code>scanf</code>.</label><label><input name="f_2" type="radio" value="d"> Só serve para strings nativas.</label></div>
+        <div class="q" data-topic="Entrada/saída" data-answer="d"><strong>3. <code>scanf("%f", &nota)</code> usa <code>&</code> porque:</strong><label><input name="f_3" type="radio" value="a"> <code>printf</code> exige.</label><label><input name="f_3" type="radio" value="b"> o valor não deve ser lido.</label><label><input name="f_3" type="radio" value="c"> <code>nota</code> é uma matriz.</label><label><input name="f_3" type="radio" value="d"> o valor digitado precisa ser gravado no endereço da variável.</label></div>
+        <div class="q" data-topic="Arrays" data-answer="b"><strong>4. <code>char jogoDaVelha[3][3]</code> possui:</strong><label><input name="f_4" type="radio" value="a"> 6 posições.</label><label><input name="f_4" type="radio" value="b"> 9 posições.</label><label><input name="f_4" type="radio" value="c"> 3 posições.</label><label><input name="f_4" type="radio" value="d"> 33 posições.</label></div>
+        <div class="q" data-topic="Structs" data-answer="c"><strong>5. Em <code>scanf("%[^\n]", aluno.nome)</code>, não se usa <code>&</code> porque:</strong><label><input name="f_5" type="radio" value="a"> <code>scanf</code> não recebe endereço.</label><label><input name="f_5" type="radio" value="b"> <code>nome</code> é inteiro.</label><label><input name="f_5" type="radio" value="c"> array de char já se comporta como endereço do primeiro caractere.</label><label><input name="f_5" type="radio" value="d"> <code>%[^\n]</code> é saída de dados.</label></div>
+        <div class="q" data-topic="Ponteiros" data-answer="a"><strong>6. Em <code>int* p = &x; *p = 7;</code>, o efeito é:</strong><label><input name="f_6" type="radio" value="a"> alterar o valor de <code>x</code> para 7.</label><label><input name="f_6" type="radio" value="b"> alterar o nome da variável.</label><label><input name="f_6" type="radio" value="c"> criar um novo compilador.</label><label><input name="f_6" type="radio" value="d"> transformar <code>x</code> em string.</label></div>
+        <div class="q" data-topic="Ponteiros" data-answer="d"><strong>7. <code>int** pp</code> representa:</strong><label><input name="f_7" type="radio" value="a"> uma matriz obrigatória.</label><label><input name="f_7" type="radio" value="b"> uma função sem retorno.</label><label><input name="f_7" type="radio" value="c"> uma string com dois caracteres.</label><label><input name="f_7" type="radio" value="d"> um ponteiro para ponteiro de inteiro.</label></div>
+        <div class="q" data-topic="Funções" data-answer="b"><strong>8. Se uma função aparece depois do <code>main</code>, deve-se:</strong><label><input name="f_8" type="radio" value="a"> removê-la.</label><label><input name="f_8" type="radio" value="b"> prototipá-la antes do <code>main</code>.</label><label><input name="f_8" type="radio" value="c"> transformá-la em variável.</label><label><input name="f_8" type="radio" value="d"> usar apenas <code>switch</code>.</label></div>
+      </div><div class="btns"><button class="btn" onclick="checkFinal()">Corrigir parte objetiva</button></div><div id="final_result" class="result"></div></div>
+      <div class="card"><h3>Parte B - Discursivas</h3><p>Responda com linguagem técnica. Depois me mande no chat para eu corrigir de verdade.</p><ol class="checklist"><li>Explique a diferença entre variável, constante <code>const</code> e <code>#define</code>.</li><li>Explique por que C não tem <code>string</code> nativa e como se trabalha com texto.</li><li>Explique a diferença entre estrutura homogênea e heterogênea, com exemplo em C.</li><li>Explique por que <code>valores[10]</code> tem índices de 0 a 9.</li><li>Explique o papel de <code>&</code> e <code>*</code> em ponteiros.</li><li>Explique por que <code>scanf("%d", p_valor)</code> funciona se <code>p_valor</code> já aponta para um inteiro.</li><li>Explique a diferença entre <code>aluno.ra</code> e <code>p_aluno-&gt;ra</code>.</li></ol><textarea placeholder="Faça suas discursivas aqui..."></textarea></div>
+      <div class="card"><h3>Parte C - Desafio de código final</h3><p>Crie um programa que:</p><ol class="checklist"><li>Declare <code>typedef struct</code> <code>Aluno</code> com RA, nome e nota.</li><li>Crie um array de 3 alunos.</li><li>Use <code>for</code> para ler dados com <code>scanf</code>.</li><li>Use função para calcular a média das notas.</li><li>Use ponteiro para alterar a nota de um aluno por referência.</li><li>Imprima todos os dados.</li></ol><textarea data-keywords="typedef,struct,Aluno,alunos[3],for,scanf,printf,float,media,int*,*,&" placeholder="Código final..."></textarea><div class="btns"><button class="btn secondary" onclick="checkKeywords(this)">Conferir estrutura mínima</button></div></div>
+      <div class="checkpoint"><h3>Plano de estudo pós-prova</h3><div id="studyPlan" class="result">Corrija a parte objetiva para gerar um diagnóstico inicial. Depois mande suas discursivas no chat para correção detalhada.</div></div>
+    </div>
+  </section>
+
+  <div class="footer"><p>Treinamento local. Seu progresso fica salvo neste navegador.</p><button class="btn secondary" onclick="resetProgress()">Resetar progresso</button></div>
+</div>
+
+<script>
+const totalLevels=10;
+let unlocked = Number(localStorage.getItem('ed_unlocked_v3') || 1);
+let completed = JSON.parse(localStorage.getItem('ed_completed_v3') || '{}');
+const FORM_STORAGE_KEY='ed_training_answers_v4';
+let formState=loadFormState();
+const titles = ['Por que C?','Main e compilação','Tipos e constantes','E/S, strings e funções','Arrays e matrizes','Structs','Memória','Ponteiros','Ponteiros avançados','Prova final'];
+function loadFormState(){try{return JSON.parse(localStorage.getItem(FORM_STORAGE_KEY))||{radios:{},texts:[],quizzes:{},answers:[]};}catch(e){return{radios:{},texts:[],quizzes:{},answers:[]};}}
+function saveFormState(){
+  const radios={};document.querySelectorAll('input[type="radio"]:checked').forEach(input=>radios[input.name]=input.value);
+  const texts=[...document.querySelectorAll('textarea')].map(ta=>({value:ta.value,passed:ta.dataset.passed==='true'}));
+  const quizzes={};document.querySelectorAll('.quiz[data-quiz]').forEach(q=>quizzes[q.dataset.quiz]=q.dataset.passed==='true');
+  const answers=[...document.querySelectorAll('.answer')].map(a=>a.classList.contains('show'));
+  formState={radios,texts,quizzes,answers};
+  try{localStorage.setItem(FORM_STORAGE_KEY,JSON.stringify(formState));}catch(e){}
+}
+function restoreFormState(){
+  Object.entries(formState.radios||{}).forEach(([name,value])=>{const input=document.querySelector(`input[type="radio"][name="${CSS.escape(name)}"][value="${CSS.escape(value)}"]`);if(input)input.checked=true;});
+  document.querySelectorAll('textarea').forEach((ta,i)=>{const saved=(formState.texts||[])[i];if(saved){ta.value=saved.value||'';if(saved.passed){ta.dataset.passed='true';ta.classList.add('taskDone');}}});
+  document.querySelectorAll('.quiz[data-quiz]').forEach(q=>{if((formState.quizzes||{})[q.dataset.quiz]){q.dataset.passed='true';q.querySelectorAll('.q').forEach(item=>{const checked=item.querySelector('input:checked');if(checked&&checked.value===item.dataset.answer)item.classList.add('taskDone');});}});
+  document.querySelectorAll('.answer').forEach((a,i)=>a.classList.toggle('show',!!(formState.answers||[])[i]));
+}
+function buildToc(){const toc=document.getElementById('toc');toc.innerHTML='';for(let i=1;i<=totalLevels;i++){const b=document.createElement('button');b.textContent=(i<10?'Nível '+i:'Prova')+' · '+titles[i-1];b.onclick=()=>{if(i<=unlocked){localStorage.setItem('ed_last_level_v3',i);document.getElementById('level'+i).scrollIntoView({behavior:'smooth'});}}; if(i>unlocked)b.classList.add('locked'); toc.appendChild(b);}}
+function updateLocks(){for(let i=1;i<=totalLevels;i++){const sec=document.getElementById('level'+i); const body=sec.querySelector('.levelBody'); const st=sec.querySelector('[data-status]'); if(i<=unlocked){body.style.display='block'; st.textContent= completed[i]?'Concluído':'Desbloqueado'; st.className='status '+(completed[i]?'ok':'');}else{body.style.display='none'; st.textContent='Bloqueado 🔒';} } let done=Object.keys(completed).length; let pct=Math.round((done/(totalLevels-1))*100); if(pct>100)pct=100; document.getElementById('globalBar').style.width=pct+'%'; document.getElementById('globalStatus').textContent=pct+'%'; buildToc();}
+function checkQuiz(id){const quiz=document.querySelector('[data-quiz="'+id+'"]'); const qs=[...quiz.querySelectorAll('.q')]; let correct=0; let missed=[]; qs.forEach((q,idx)=>{const ans=q.dataset.answer; const checked=q.querySelector('input:checked'); q.classList.remove('taskDone'); if(checked && checked.value===ans){correct++; q.classList.add('taskDone');} else {missed.push(idx+1);} }); const res=document.getElementById(id+'_result'); const ok=correct===qs.length; quiz.dataset.passed=ok?'true':'false'; res.innerHTML= ok?`<span class="ok">Perfeito: ${correct}/${qs.length}. Quiz concluído e salvo.</span>`:`<span class="bad">Você fez ${correct}/${qs.length}. Revise as questões: ${missed.join(', ')}.</span>`; saveFormState(); return ok;}
+function normalize(s){return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
+function checkKeywords(btn){const card=btn.closest('.card'); const ta=card.querySelector('textarea[data-keywords]'); const kws=ta.dataset.keywords.split(',').map(k=>normalize(k.trim())).filter(Boolean); const text=normalize(ta.value); const missing=kws.filter(k=>!text.includes(k)); let res=card.querySelector('.kwres'); if(!res){res=document.createElement('div'); res.className='result kwres'; card.appendChild(res);} if(missing.length===0){ta.dataset.passed='true'; ta.classList.add('taskDone'); res.innerHTML='<span class="ok">Estrutura mínima ok. Resposta e progresso salvos.</span>';} else {ta.dataset.passed='false'; res.innerHTML='<span class="bad">Ainda faltam ideias/palavras-chave: '+missing.join(', ')+'</span>';}saveFormState();}
+function toggleAnswer(btn){const ans=btn.closest('.card').querySelector('.answer'); if(ans){ans.classList.toggle('show');saveFormState();}}
+function levelChecks(level){const sec=document.getElementById('level'+level); const quizzes=[...sec.querySelectorAll('.quiz')]; const quizOk=quizzes.every(q=>q.dataset.passed==='true'); const tas=[...sec.querySelectorAll('textarea[data-keywords]')]; const taOk=tas.every(t=>t.dataset.passed==='true'); return {quizOk,taOk,ok:quizOk&&taOk};}
+function finishLevel(level){const res=document.getElementById('finish'+level); const ck=levelChecks(level); if(!ck.ok){res.innerHTML='<span class="bad">Ainda não: conclua '+(!ck.quizOk?'o quiz ':'')+(!ck.taOk?'e os treinos de escrita/código':'')+'.</span>';saveFormState();return;} completed[level]=true; localStorage.setItem('ed_completed_v3',JSON.stringify(completed)); if(unlocked<level+1){unlocked=level+1; localStorage.setItem('ed_unlocked_v3',unlocked);} localStorage.setItem('ed_last_level_v3',Math.min(level+1,totalLevels));res.innerHTML='<span class="ok">Nível concluído e salvo. Próximo nível desbloqueado.</span>'; saveFormState();updateLocks();}
+function checkFinal(){const ok=checkQuiz('final'); const quiz=document.querySelector('[data-quiz="final"]'); const qs=[...quiz.querySelectorAll('.q')]; const misses={}; qs.forEach(q=>{const checked=q.querySelector('input:checked'); if(!checked || checked.value!==q.dataset.answer){const t=q.dataset.topic||'Geral'; misses[t]=(misses[t]||0)+1;}}); const plan=document.getElementById('studyPlan'); if(Object.keys(misses).length===0){plan.innerHTML='<span class="ok">Objetiva perfeita. Agora foque nas discursivas e no código final, porque é onde a prova costuma revelar lacunas reais.</span>';} else {let items=Object.entries(misses).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<li><b>${k}</b>: ${v} erro(s). Revise o nível correspondente e refaça as práticas.</li>`).join(''); plan.innerHTML='<b>Prioridade de revisão:</b><ul>'+items+'</ul>';} }
+function resetProgress(){if(!confirm('Apagar todo o progresso, respostas e rascunhos deste treinamento?'))return;localStorage.removeItem('ed_unlocked_v3');localStorage.removeItem('ed_completed_v3');localStorage.removeItem(FORM_STORAGE_KEY);localStorage.removeItem('ed_last_level_v3');location.reload();}
+let saveTimer;document.addEventListener('input',()=>{clearTimeout(saveTimer);saveTimer=setTimeout(saveFormState,250);});document.addEventListener('change',saveFormState);window.addEventListener('pagehide',saveFormState);
+updateLocks();restoreFormState();
+</script>
 </body>
-</html> 
+</html>
+ 
