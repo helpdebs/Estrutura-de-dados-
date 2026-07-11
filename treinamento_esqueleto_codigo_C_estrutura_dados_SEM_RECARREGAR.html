@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Treino de Esqueleto em C - Estrutura de Dados</title>
+  <style>
+    :root{
+      --bg:#11111f; --panel:#1b1b2c; --panel2:#24243a; --text:#f4f2ff; --muted:#c9c4ee;
+      --primary:#8f7aff; --primary2:#c084fc; --good:#3ddc97; --bad:#ff6b6b; --warn:#ffd166;
+      --line:rgba(255,255,255,.14); --chip:#30304a; --chip2:#223f36; --code:#0f1020;
+      --shadow:0 18px 50px rgba(0,0,0,.35); --radius:22px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0; font-family:Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:radial-gradient(circle at 20% 0%, #30245e 0, transparent 32%), radial-gradient(circle at 90% 12%, #572b70 0, transparent 28%), var(--bg); color:var(--text); line-height:1.55}
+    header{position:sticky; top:0; z-index:20; backdrop-filter:blur(16px); background:rgba(17,17,31,.78); border-bottom:1px solid var(--line)}
+    .topbar{max-width:1200px; margin:auto; padding:16px 22px; display:flex; gap:16px; align-items:center; justify-content:space-between}
+    .brand{display:flex; align-items:center; gap:12px; min-width:0}
+    .logo{width:42px; height:42px; border-radius:15px; display:grid; place-items:center; background:linear-gradient(135deg,var(--primary),var(--primary2)); box-shadow:0 10px 25px rgba(143,122,255,.35); font-weight:900}
+    h1{font-size:clamp(1.25rem,2.4vw,2rem); margin:0; line-height:1.1}
+    .subtitle{font-size:.92rem; color:var(--muted); margin-top:4px}
+    .progressWrap{min-width:260px; text-align:right}
+    .bar{height:10px; background:rgba(255,255,255,.1); border-radius:999px; overflow:hidden; border:1px solid var(--line)}
+    .barFill{height:100%; width:0; background:linear-gradient(90deg,var(--good),var(--primary)); transition:.35s ease}
+    .progressText{font-size:.84rem; color:var(--muted); margin-top:6px}
+    main{max-width:1200px; margin:0 auto; padding:26px 22px 80px}
+    .hero{display:grid; grid-template-columns:1.15fr .85fr; gap:20px; align-items:stretch; margin:16px 0 24px}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.025)); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow)}
+    .hero .card{padding:26px}
+    h2{font-size:clamp(1.45rem,3vw,2.4rem); margin:0 0 12px}
+    h3{font-size:1.25rem; margin:0 0 12px}
+    p{margin:0 0 12px}
+    .note{color:var(--muted)}
+    .grid2{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+    .formula{display:grid; gap:8px; margin-top:18px}
+    .formula span{display:flex; gap:10px; align-items:flex-start; background:rgba(255,255,255,.06); border:1px solid var(--line); border-radius:15px; padding:10px 12px}
+    .num{flex:0 0 auto; width:25px; height:25px; display:grid; place-items:center; border-radius:9px; background:rgba(143,122,255,.22); color:#fff; font-weight:800}
+    .pillrow{display:flex; flex-wrap:wrap; gap:8px; margin-top:14px}
+    .pill{display:inline-flex; align-items:center; gap:6px; padding:7px 11px; border-radius:999px; background:rgba(143,122,255,.16); border:1px solid rgba(143,122,255,.34); color:#eee; font-size:.86rem}
+    .navLevels{display:flex; flex-wrap:wrap; gap:8px; margin:24px 0}
+    .levelBtn{border:1px solid var(--line); background:rgba(255,255,255,.06); color:var(--text); padding:10px 12px; border-radius:14px; cursor:pointer; transition:.2s ease; font-weight:700}
+    .levelBtn:hover{transform:translateY(-1px); border-color:rgba(143,122,255,.75)}
+    .levelBtn.locked{opacity:.45; cursor:not-allowed; filter:grayscale(.7)}
+    .levelBtn.done{background:rgba(61,220,151,.14); border-color:rgba(61,220,151,.4)}
+    .level{display:none; padding:24px; margin-bottom:24px}
+    .level.active{display:block; animation:fade .25s ease both}
+    @keyframes fade{from{opacity:0; transform:translateY(8px)}to{opacity:1; transform:translateY(0)}}
+    .levelHeader{display:flex; justify-content:space-between; gap:14px; align-items:flex-start; margin-bottom:20px}
+    .badge{display:inline-flex; align-items:center; padding:8px 12px; border-radius:999px; background:rgba(192,132,252,.16); border:1px solid rgba(192,132,252,.35); font-weight:800; color:#f5e9ff; white-space:nowrap}
+    .concepts{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px}
+    .concepts code, code.inline{background:rgba(255,255,255,.1); border:1px solid var(--line); padding:2px 7px; border-radius:8px; color:#fff}
+    .task{padding:20px; margin:16px 0; background:rgba(0,0,0,.18); border:1px solid var(--line); border-radius:20px}
+    .taskTop{display:flex; justify-content:space-between; gap:12px; align-items:start; margin-bottom:10px}
+    .taskType{font-size:.78rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); border:1px solid var(--line); border-radius:999px; padding:4px 8px}
+    .prompt{font-size:1.06rem; background:rgba(143,122,255,.08); border-left:4px solid var(--primary); padding:12px 14px; border-radius:12px; margin:10px 0 14px}
+    .instruction{color:var(--muted); margin-bottom:12px}
+    .chips{display:flex; flex-wrap:wrap; gap:9px; margin:12px 0}
+    button.chip{border:1px solid var(--line); background:var(--chip); color:var(--text); padding:9px 11px; border-radius:999px; cursor:pointer; font-weight:700; transition:.16s ease}
+    button.chip:hover{border-color:rgba(143,122,255,.8); transform:translateY(-1px)}
+    button.chip.selected{background:rgba(61,220,151,.17); border-color:rgba(61,220,151,.55)}
+    button.chip.used{opacity:.35; pointer-events:none}
+    .answerBox{min-height:54px; border:1px dashed rgba(255,255,255,.28); border-radius:16px; padding:10px; background:rgba(255,255,255,.04); margin:12px 0}
+    .answerBox .chip{background:rgba(143,122,255,.18); border-color:rgba(143,122,255,.45)}
+    textarea{width:100%; min-height:130px; resize:vertical; background:rgba(10,10,25,.78); color:var(--text); border:1px solid var(--line); border-radius:16px; padding:14px; font:500 1rem/1.5 Inter, system-ui, sans-serif; outline:none}
+    textarea:focus{border-color:rgba(143,122,255,.8); box-shadow:0 0 0 4px rgba(143,122,255,.14)}
+    .actions{display:flex; flex-wrap:wrap; gap:10px; margin-top:12px}
+    .btn{border:1px solid var(--line); border-radius:14px; padding:10px 14px; cursor:pointer; font-weight:850; color:var(--text); background:rgba(255,255,255,.08); transition:.2s ease}
+    .btn:hover{transform:translateY(-1px); border-color:rgba(255,255,255,.32)}
+    .btn.primary{background:linear-gradient(135deg,rgba(143,122,255,.88),rgba(192,132,252,.88)); border-color:transparent}
+    .btn.good{background:rgba(61,220,151,.16); border-color:rgba(61,220,151,.45)}
+    .btn.warn{background:rgba(255,209,102,.16); border-color:rgba(255,209,102,.45)}
+    .feedback{display:none; margin-top:12px; border-radius:16px; padding:12px 14px; border:1px solid var(--line)}
+    .feedback.show{display:block}
+    .feedback.ok{background:rgba(61,220,151,.12); border-color:rgba(61,220,151,.42)}
+    .feedback.no{background:rgba(255,107,107,.11); border-color:rgba(255,107,107,.42)}
+    .feedback.hint{background:rgba(255,209,102,.1); border-color:rgba(255,209,102,.38)}
+    .score{display:flex; gap:10px; align-items:center; color:var(--muted); font-weight:700; margin-top:8px}
+    .mini{font-size:.88rem; color:var(--muted)}
+    .library{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:18px}
+    .libCard{padding:16px; border-radius:18px; background:rgba(255,255,255,.045); border:1px solid var(--line)}
+    .libCard ul{margin:8px 0 0; padding-left:18px; color:var(--muted)}
+    pre{white-space:pre-wrap; margin:12px 0 0; background:var(--code); border:1px solid var(--line); padding:14px; border-radius:16px; overflow:auto; color:#f7f7ff}
+    .kbd{font-family:ui-monospace,SFMono-Regular,Consolas,monospace; background:rgba(255,255,255,.11); padding:2px 6px; border-radius:7px; border:1px solid var(--line)}
+    .footerActions{display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between; margin-top:18px; padding-top:18px; border-top:1px solid var(--line)}
+    .toast{position:fixed; right:20px; bottom:20px; max-width:360px; background:#19192c; border:1px solid var(--line); box-shadow:var(--shadow); padding:14px 16px; border-radius:16px; display:none; z-index:50}
+    .toast.show{display:block; animation:fade .2s ease both}
+    .statusDot{width:10px;height:10px;border-radius:999px;background:var(--warn);display:inline-block}.statusDot.done{background:var(--good)}
+    @media(max-width:850px){.hero,.grid2,.library{grid-template-columns:1fr}.topbar{align-items:flex-start; flex-direction:column}.progressWrap{text-align:left; width:100%; min-width:0}.levelHeader{flex-direction:column}.taskTop{flex-direction:column}.level{padding:18px}main{padding-left:14px;padding-right:14px}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">C</div>
+        <div>
+          <h1>Treino de Esqueleto em C</h1>
+          <div class="subtitle">Transforme enunciados em receita antes de codar - Estrutura de Dados Aulas 1, 2 e 3</div>
+        </div>
+      </div>
+      <div class="progressWrap">
+        <div class="bar"><div id="barFill" class="barFill"></div></div>
+        <div id="progressText" class="progressText">Carregando progresso...</div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="card">
+        <h2>O treino que resolve o “deu branco”</h2>
+        <p class="note">Você vai treinar a habilidade que vem antes do código: olhar para o enunciado e montar a arquitetura mental da solução.</p>
+        <div class="formula">
+          <span><b class="num">1</b><b>O que entra?</b> Dados digitados, argumentos, quantidade de valores, texto, nota, RA etc.</span>
+          <span><b class="num">2</b><b>O que guardar?</b> Variáveis simples, arrays, matrizes, structs ou ponteiros.</span>
+          <span><b class="num">3</b><b>O que fazer?</b> Soma, média, comparação, cadastro, impressão, alteração por referência.</span>
+          <span><b class="num">4</b><b>Tem decisão?</b> if/else ou switch.</span>
+          <span><b class="num">5</b><b>Tem repetição?</b> for, while ou do while.</span>
+          <span><b class="num">6</b><b>Tem função?</b> Parâmetros, retorno, void e protótipo.</span>
+          <span><b class="num">7</b><b>O que sai?</b> printf, relatório, lista, endereço, maior valor, resultado final.</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Como usar</h3>
+        <p>Faça os níveis em ordem. Cada nível tem três tipos de exercício:</p>
+        <div class="pillrow">
+          <span class="pill">🏷️ identificar blocos</span>
+          <span class="pill">🧩 ordenar receita</span>
+          <span class="pill">✍️ escrever esqueleto</span>
+        </div>
+        <p style="margin-top:16px" class="note">O objetivo não é decorar uma solução. É reconhecer o tipo de problema e montar o caminho antes de escrever C.</p>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="resetProgress(false)">Recomeçar treino</button>
+          <button type="button" class="btn" onclick="unlockAll()">Desbloquear tudo</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" style="padding:22px; margin-bottom:22px">
+      <h3>Biblioteca rápida de gatilhos</h3>
+      <div class="library">
+        <div class="libCard"><b>Entrada e saída</b><ul><li>leia, receba, informe -> scanf</li><li>mostre, imprima, exiba -> printf</li><li>valor digitado -> variável</li></ul></div>
+        <div class="libCard"><b>Decisão e repetição</b><ul><li>maior, menor, aprovado -> if</li><li>opção/menu -> switch</li><li>10 valores -> for</li><li>até sair -> while/do while</li></ul></div>
+        <div class="libCard"><b>Estruturas</b><ul><li>vários do mesmo tipo -> array</li><li>linha/coluna -> matriz</li><li>nome + RA + nota -> struct</li><li>endereço/alterar original -> ponteiro</li></ul></div>
+      </div>
+    </section>
+
+    <nav id="navLevels" class="navLevels"></nav>
+    <div id="levelsContainer"></div>
+  </main>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const LEVELS = [{"id": "nivel-0", "title": "Nível 0 - O método anti-branco", "badge": "Método", "objective": "Aprender a transformar um enunciado em receita antes de tentar escrever código.", "lesson": "Você não começa pelo código. Você começa separando: entrada, variáveis, processamento, decisão, repetição, função e saída. Essa é a ponte entre português e C.", "concepts": ["funil de tradução", "esqueleto", "entrada-processamento-saída", "palavras-gatilho"], "tasks": [{"type": "tags", "title": "Caça-gatilhos 1", "prompt": "Leia dois números e mostre a soma.", "instruction": "Marque quais blocos esse enunciado exige.", "tags": ["entrada", "saída", "decisão", "repetição", "função", "array", "struct", "ponteiro", "variáveis", "processamento"], "expected": ["entrada", "saída", "variáveis", "processamento"], "feedback": "Aqui existe leitura de dados, variáveis para guardar os números, processamento de soma e impressão do resultado. Não há decisão, repetição nem função obrigatória."}, {"type": "order", "title": "Receita antes do código", "prompt": "Escreva um programa que leia dois números e mostre a média.", "instruction": "Monte a ordem do esqueleto. Clique nos blocos na sequência correta.", "blocks": ["incluir stdio.h", "abrir main", "declarar variáveis", "ler primeiro número", "ler segundo número", "calcular média", "imprimir média", "return 0"], "expected": ["incluir stdio.h", "abrir main", "declarar variáveis", "ler primeiro número", "ler segundo número", "calcular média", "imprimir média", "return 0"], "feedback": "A receita segue a ordem básica: preparar biblioteca, abrir main, criar espaços de memória, receber dados, processar e mostrar."}, {"type": "write", "title": "Tradução livre guiada", "prompt": "Transforme o enunciado 'leia dois números e mostre o produto' em uma receita em português, sem código completo.", "instruction": "Escreva a receita em passos. Não precisa programar ainda.", "must": [["ler", "receber", "entrada"], ["dois", "2"], ["variáveis", "guardar"], ["multiplicar", "produto"], ["mostrar", "imprimir", "saída"]], "feedback": "Uma boa receita menciona: ler dois números, guardar em variáveis, multiplicar, guardar ou calcular o produto, imprimir o resultado."}]}, {"id": "nivel-1", "title": "Nível 1 - C básico: esqueleto, variáveis, tipos e E/S", "badge": "C base", "objective": "Montar o esqueleto de programas com tipos, printf e scanf sem travar.", "lesson": "Nos exercícios iniciais, o esqueleto quase sempre é: #include <stdio.h>, main, variáveis, printf/scanf, processamento, printf final e return 0. Tipos definem como o dado será guardado e interpretado.", "concepts": ["#include", "main", "int", "float", "char", "printf", "scanf", "&"], "tasks": [{"type": "tags", "title": "Tipos e entrada", "prompt": "Leia a idade de uma pessoa e mostre a idade digitada.", "instruction": "Marque os blocos necessários.", "tags": ["stdio.h", "int", "float", "char[]", "scanf com &", "printf", "if", "for", "struct", "função"], "expected": ["stdio.h", "int", "scanf com &", "printf"], "feedback": "Idade é um inteiro; scanf precisa do endereço da variável inteira usando &; printf mostra o valor."}, {"type": "order", "title": "Esqueleto de leitura", "prompt": "Leia uma nota decimal e informe a nota digitada.", "instruction": "Monte a ordem do programa.", "blocks": ["incluir stdio.h", "abrir main", "declarar float nota", "pedir a nota com printf", "ler nota com scanf e &nota", "mostrar nota com printf", "return 0"], "expected": ["incluir stdio.h", "abrir main", "declarar float nota", "pedir a nota com printf", "ler nota com scanf e &nota", "mostrar nota com printf", "return 0"], "feedback": "Quando o dado é digitado depois que o programa abriu, use scanf; quando ele é decimal, use float e formatador compatível."}, {"type": "write", "title": "Diagnóstico de formatador", "prompt": "Explique em receita o que você pensaria para ler: um inteiro, um decimal e uma letra.", "instruction": "Você não precisa escrever código completo. Escreva quais variáveis e quais entradas precisaria usar.", "must": [["int", "%d"], ["float", "%f"], ["char", "%c"], ["scanf"], ["&"]], "feedback": "O essencial é conectar tipo + formatador + endereço: int/%d, float/%f, char/%c, e scanf normalmente usando & para variáveis simples."}]}, {"id": "nivel-2", "title": "Nível 2 - Constantes, #define e cálculo organizado", "badge": "Constantes", "objective": "Reconhecer quando um enunciado pede valor fixo e como isso muda o esqueleto.", "lesson": "Constante é usada quando um valor aparece como referência fixa no programa, como PI, taxa, limite ou tamanho. const cria uma constante tipada; #define faz substituição antes da compilação.", "concepts": ["const", "#define", "valor fixo", "tipo", "compilação"], "tasks": [{"type": "tags", "title": "Constante ou variável?", "prompt": "Leia o raio e calcule a área de um círculo usando PI = 3.14159.", "instruction": "Marque os blocos necessários.", "tags": ["entrada", "variável raio", "const PI ou define PI", "processamento", "saída", "if", "for", "struct", "ponteiro"], "expected": ["entrada", "variável raio", "const PI ou define PI", "processamento", "saída"], "feedback": "Raio muda e vem da entrada; PI é fixo e deve entrar como const ou #define."}, {"type": "order", "title": "Receita com valor fixo", "prompt": "Calcule o preço final de um produto aplicando uma taxa fixa de 10%.", "instruction": "Monte a ordem do esqueleto.", "blocks": ["incluir stdio.h", "definir taxa fixa", "abrir main", "declarar preço e preçoFinal", "ler preço", "calcular preçoFinal", "imprimir preçoFinal", "return 0"], "expected": ["incluir stdio.h", "definir taxa fixa", "abrir main", "declarar preço e preçoFinal", "ler preço", "calcular preçoFinal", "imprimir preçoFinal", "return 0"], "feedback": "Quando o enunciado traz uma taxa fixa, ela entra antes da lógica principal como constante ou definição."}, {"type": "write", "title": "Tradução técnica", "prompt": "Explique quando você escolheria const em vez de uma variável comum.", "instruction": "Escreva como se estivesse justificando para a faculdade.", "must": [["valor fixo", "não muda", "constante"], ["tipo", "tipada"], ["programa", "execução"], ["legibilidade", "nomear"]], "feedback": "Boa resposta: uso const para nomear um valor fixo do programa, com tipo definido, evitando números soltos e deixando a lógica mais legível."}]}, {"id": "nivel-3", "title": "Nível 3 - Decisão: if, else e switch", "badge": "Decisão", "objective": "Traduzir palavras como maior, menor, aprovado, opção e menu em estruturas de decisão.", "lesson": "if/else resolve perguntas verdadeiro/falso. switch resolve escolhas entre valores fixos de uma mesma variável, como menus.", "concepts": ["if", "else", "switch", "case", "default", "break", "comparação"], "tasks": [{"type": "tags", "title": "Qual estrutura?", "prompt": "Leia uma nota e informe se o aluno foi aprovado, considerando nota maior ou igual a 7.", "instruction": "Marque os blocos necessários.", "tags": ["entrada", "variável nota", "if/else", "switch", "for", "array", "saída", "função obrigatória"], "expected": ["entrada", "variável nota", "if/else", "saída"], "feedback": "A palavra 'se' está escondida em 'informe se foi aprovado'. É uma decisão binária, portanto if/else."}, {"type": "order", "title": "Menu com switch", "prompt": "Mostre um menu com 1-Cadastrar, 2-Listar, 3-Sair; leia a opção e mostre a ação escolhida.", "instruction": "Monte a ordem do esqueleto.", "blocks": ["incluir stdio.h", "abrir main", "declarar int opcao", "imprimir menu", "ler opcao", "abrir switch(opcao)", "criar case 1", "criar case 2", "criar case 3", "criar default", "usar break nos cases", "return 0"], "expected": ["incluir stdio.h", "abrir main", "declarar int opcao", "imprimir menu", "ler opcao", "abrir switch(opcao)", "criar case 1", "criar case 2", "criar case 3", "criar default", "usar break nos cases", "return 0"], "feedback": "Menu com opções fixas é um caso clássico de switch. O break evita que o fluxo escorra para os próximos cases."}, {"type": "write", "title": "Pergunta do if", "prompt": "Enunciado: leia dois valores e diga qual é maior. Antes de codar, escreva qual é a pergunta do if e o que acontece no else.", "instruction": "Não escreva código completo. Escreva a pergunta lógica.", "must": [["primeiro", "valor1", "n1"], ["maior", ">"], ["segundo", "valor2", "n2"], ["else", "senão", "caso contrário"]], "feedback": "A pergunta central é: o primeiro valor é maior que o segundo? Se sim, ele é o maior; senão, o segundo é maior ou igual."}]}, {"id": "nivel-4", "title": "Nível 4 - Repetição: for, while e do while", "badge": "Loops", "objective": "Identificar quando um enunciado pede repetição e escolher o laço adequado.", "lesson": "for combina com quantidade conhecida. while combina com repetir enquanto uma condição for verdadeira. do while combina com executar pelo menos uma vez, como menus.", "concepts": ["for", "while", "do while", "contador", "condição", "i++"], "tasks": [{"type": "tags", "title": "Qual laço?", "prompt": "Leia 10 números e mostre cada número digitado.", "instruction": "Marque os blocos necessários.", "tags": ["for", "while obrigatório", "do while obrigatório", "contador", "scanf", "printf", "array obrigatório", "if obrigatório"], "expected": ["for", "contador", "scanf", "printf"], "feedback": "Quantidade conhecida, 10 repetições: for com contador é o caminho mais direto. O array só seria obrigatório se fosse necessário guardar todos para usar depois."}, {"type": "order", "title": "Menu persistente", "prompt": "Crie a receita de um menu que deve aparecer pelo menos uma vez e repetir até o usuário escolher 0 para sair.", "instruction": "Monte a ordem do esqueleto.", "blocks": ["incluir stdio.h", "abrir main", "declarar opcao", "abrir do", "mostrar menu", "ler opcao", "processar opcao com if ou switch", "fechar com while(opcao != 0)", "return 0"], "expected": ["incluir stdio.h", "abrir main", "declarar opcao", "abrir do", "mostrar menu", "ler opcao", "processar opcao com if ou switch", "fechar com while(opcao != 0)", "return 0"], "feedback": "Menu que precisa aparecer ao menos uma vez encaixa muito bem com do while."}, {"type": "write", "title": "Escolha do laço", "prompt": "Explique a diferença de receita entre 'leia 5 notas' e 'leia notas até o usuário digitar -1'.", "instruction": "Foque em qual laço escolher e por quê.", "must": [["5", "quantidade conhecida"], ["for"], ["-1", "sentinela"], ["while", "do while", "condição"]], "feedback": "5 notas = quantidade conhecida, geralmente for. Até digitar -1 = quantidade desconhecida, condição/sentinela, geralmente while ou do while."}]}, {"id": "nivel-5", "title": "Nível 5 - Strings: char[], \\0 e leitura de texto", "badge": "Strings", "objective": "Montar receitas com textos em C sem confundir string com tipo nativo.", "lesson": "Em C, texto é array de char. O número entre colchetes é capacidade de caracteres, não número de palavras. A string termina no caractere nulo \\0.", "concepts": ["char[]", "string", "\\0", "%s", "%[^\\n]", "capacidade"], "tasks": [{"type": "tags", "title": "Nome simples", "prompt": "Leia o primeiro nome de um aluno e mostre uma mensagem de boas-vindas.", "instruction": "Marque os blocos necessários.", "tags": ["char nome[50]", "int nome", "scanf com %s", "scanf com %d", "printf com %s", "if", "for", "struct obrigatória"], "expected": ["char nome[50]", "scanf com %s", "printf com %s"], "feedback": "Nome textual exige array de char; para primeira palavra, %s resolve; para imprimir, use %s."}, {"type": "order", "title": "Texto com espaço", "prompt": "Leia o nome completo de uma pessoa e imprima esse nome.", "instruction": "Monte a ordem do esqueleto.", "blocks": ["incluir stdio.h", "abrir main", "declarar char nomeCompleto[tamanho]", "pedir o nome completo", "ler com padrão que aceita espaço", "imprimir com %s", "return 0"], "expected": ["incluir stdio.h", "abrir main", "declarar char nomeCompleto[tamanho]", "pedir o nome completo", "ler com padrão que aceita espaço", "imprimir com %s", "return 0"], "feedback": "Para textos com espaço, a receita precisa prever uma leitura que não pare no primeiro espaço, como o padrão %[^\\n] estudado no material."}, {"type": "write", "title": "Capacidade, não quantidade usada", "prompt": "Explique a receita mental para declarar char palavra[20] = \"algoritmo\".", "instruction": "Diga o que é 20, o que é algoritmo e por que existe \\0.", "must": [["20", "capacidade", "posições"], ["caracteres", "char"], ["algoritmo"], ["\\0", "nulo", "fim"]], "feedback": "O 20 é a capacidade do array de caracteres. 'algoritmo' usa 9 letras + o caractere nulo \\0; o restante sobra como espaço disponível."}]}, {"id": "nivel-6", "title": "Nível 6 - Funções e prototipação", "badge": "Funções", "objective": "Separar o que fica no main e o que vira função, decidindo retorno, parâmetros e protótipo.", "lesson": "Função tem tipo de retorno, nome, parâmetros e corpo. Se a função completa fica depois do main, o compilador precisa conhecer o protótipo antes.", "concepts": ["função", "parâmetros", "return", "void", "protótipo", "main"], "tasks": [{"type": "tags", "title": "Função com retorno", "prompt": "Leia dois números, use uma função maior() para retornar o maior valor e mostre o resultado.", "instruction": "Marque os blocos necessários.", "tags": ["entrada", "duas variáveis", "função maior", "parâmetros", "return", "if", "void", "for", "struct", "array"], "expected": ["entrada", "duas variáveis", "função maior", "parâmetros", "return", "if"], "feedback": "A função maior precisa receber dois valores, comparar com if e retornar um deles. Não é void porque devolve um valor."}, {"type": "order", "title": "Esqueleto com protótipo", "prompt": "Crie uma função media() que receba duas notas e retorne a média. A função completa ficará depois do main.", "instruction": "Monte a ordem do esqueleto.", "blocks": ["incluir stdio.h", "declarar protótipo de media", "abrir main", "declarar notas e resultado", "ler as notas", "chamar media(n1,n2)", "imprimir resultado", "return 0", "definir função media depois do main"], "expected": ["incluir stdio.h", "declarar protótipo de media", "abrir main", "declarar notas e resultado", "ler as notas", "chamar media(n1,n2)", "imprimir resultado", "return 0", "definir função media depois do main"], "feedback": "Se a função vem depois do main, o protótipo vem antes para avisar o compilador."}, {"type": "write", "title": "main organiza, função resolve", "prompt": "Explique a divisão de responsabilidades entre main e uma função calcularArea().", "instruction": "Fale em receita: quem lê, quem calcula, quem imprime, quem retorna.", "must": [["main"], ["ler", "entrada", "scanf"], ["chamar", "invocar"], ["calcularArea"], ["return", "retornar"], ["imprimir", "printf", "saída"]], "feedback": "Uma boa divisão: main lê dados, chama calcularArea, guarda o retorno e imprime; calcularArea recebe parâmetros, calcula e retorna o resultado."}]}, {"id": "nivel-7", "title": "Nível 7 - Arrays e matrizes: guardar muitos dados", "badge": "Arrays", "objective": "Reconhecer quando precisa de array, matriz e laços aninhados.", "lesson": "Array é estrutura homogênea: várias posições do mesmo tipo, indexadas de 0 até tamanho-1. Matriz é array com duas dimensões; cada dimensão costuma pedir um laço próprio.", "concepts": ["array", "índice", "for", "matriz", "laço aninhado", "dimensões"], "tasks": [{"type": "tags", "title": "Guardar para depois", "prompt": "Leia 10 notas, armazene todas em um vetor e depois imprima todas.", "instruction": "Marque os blocos necessários.", "tags": ["array de float", "for de leitura", "for de impressão", "scanf com &vetor[i]", "printf", "if obrigatório", "struct", "ponteiro"], "expected": ["array de float", "for de leitura", "for de impressão", "scanf com &vetor[i]", "printf"], "feedback": "Como precisa armazenar todas e imprimir depois, array é obrigatório. A variável i identifica a posição."}, {"type": "order", "title": "Matriz jogo da velha", "prompt": "Preencha uma matriz 3x3 de caracteres e depois imprima o tabuleiro.", "instruction": "Monte a receita.", "blocks": ["declarar char matriz[3][3]", "abrir for de linhas", "abrir for de colunas", "ler ou atribuir matriz[i][j]", "fechar laços de preenchimento", "abrir for de linhas para imprimir", "abrir for de colunas para imprimir", "imprimir matriz[i][j]", "quebrar linha ao fim de cada linha"], "expected": ["declarar char matriz[3][3]", "abrir for de linhas", "abrir for de colunas", "ler ou atribuir matriz[i][j]", "fechar laços de preenchimento", "abrir for de linhas para imprimir", "abrir for de colunas para imprimir", "imprimir matriz[i][j]", "quebrar linha ao fim de cada linha"], "feedback": "Duas dimensões pedem dois índices. Para percorrer tudo, use laços aninhados: linha i e coluna j."}, {"type": "write", "title": "0 até tamanho-1", "prompt": "Explique por que um vetor int valores[10] deve ser percorrido com i < 10, e não i <= 10.", "instruction": "Foque na receita de índices válidos.", "must": [["0"], ["9"], ["10 posições", "dez posições"], ["i < 10"], ["i <= 10", "posição 10", "fora"]], "feedback": "Em int valores[10], os índices válidos são 0 a 9. Com i <= 10, você tenta acessar valores[10], que está fora do vetor."}]}, {"id": "nivel-8", "title": "Nível 8 - Structs: dados heterogêneos", "badge": "Structs", "objective": "Montar esqueleto quando o problema envolve uma entidade com campos de tipos diferentes.", "lesson": "Struct agrupa campos de tipos diferentes em uma mesma estrutura. typedef permite usar o nome da struct como tipo. Para strings dentro de struct, use array de char e, em atribuição direta de texto, strcpy.", "concepts": ["struct", "typedef", ".", "strcpy", "string.h", "struct aninhada", "array de structs"], "tasks": [{"type": "tags", "title": "Ficha de aluno", "prompt": "Crie uma estrutura para um aluno com RA, nome e nota; leia os dados e mostre a ficha.", "instruction": "Marque os blocos necessários.", "tags": ["typedef struct", "int ra", "char nome[]", "float nota", "variável Aluno", "operador .", "strcpy obrigatório sempre", "array obrigatório", "ponteiro obrigatório"], "expected": ["typedef struct", "int ra", "char nome[]", "float nota", "variável Aluno", "operador ."], "feedback": "Aluno tem campos de tipos diferentes, então struct. O operador . acessa campos de variável struct normal."}, {"type": "order", "title": "Array de structs", "prompt": "Cadastre 3 alunos com RA e nome e depois liste os alunos cadastrados.", "instruction": "Monte a receita.", "blocks": ["incluir stdio.h e string.h se necessário", "definir typedef struct Aluno", "abrir main", "declarar Aluno alunos[3]", "abrir for de cadastro", "ler alunos[i].ra", "ler alunos[i].nome", "fechar cadastro", "abrir for de listagem", "imprimir alunos[i].ra e alunos[i].nome"], "expected": ["incluir stdio.h e string.h se necessário", "definir typedef struct Aluno", "abrir main", "declarar Aluno alunos[3]", "abrir for de cadastro", "ler alunos[i].ra", "ler alunos[i].nome", "fechar cadastro", "abrir for de listagem", "imprimir alunos[i].ra e alunos[i].nome"], "feedback": "Array de structs aparece quando você precisa de vários registros do mesmo molde, como vários alunos."}, {"type": "write", "title": "Struct aninhada", "prompt": "Explique a receita para modelar um Aluno que possui um Telefone com DDD e número.", "instruction": "Não escreva código completo. Descreva as structs e o acesso aos campos.", "must": [["struct", "typedef"], ["Telefone"], ["DDD", "ddd"], ["numero", "número"], ["Aluno"], ["telefone"], [".", "ponto", "aluno.telefone"]], "feedback": "A receita: criar uma struct Telefone, colocar um campo Telefone dentro de Aluno e acessar com aluno.telefone.DDD e aluno.telefone.numero."}]}, {"id": "nivel-9", "title": "Nível 9 - Ponteiros e endereçamento", "badge": "Ponteiros", "objective": "Traduzir enunciados de memória em receita: endereço, ponteiro, desreferenciação e referência.", "lesson": "Ponteiro guarda endereço. & pega endereço. * na declaração cria ponteiro; * no uso acessa o valor apontado. -> acessa campo de struct através de ponteiro.", "concepts": ["RAM", "endereço", "&", "*", "%p", "scanf", "passagem por referência", "->"], "tasks": [{"type": "tags", "title": "Endereço de variável", "prompt": "Declare uma variável inteira e mostre seu endereço de memória.", "instruction": "Marque os blocos necessários.", "tags": ["int valor", "&valor", "%p", "printf", "scanf", "array", "struct", "for"], "expected": ["int valor", "&valor", "%p", "printf"], "feedback": "Para mostrar endereço, use operador & e formatador de ponteiro %p."}, {"type": "order", "title": "Função altera valor original", "prompt": "Crie uma receita para uma função que receba o endereço de um inteiro e altere seu valor original.", "instruction": "Monte a ordem do esqueleto.", "blocks": ["declarar protótipo com parâmetro int*", "abrir main", "declarar int valor", "chamar função passando &valor", "imprimir valor após a função", "definir função com int* p", "usar *p para alterar o conteúdo", "retornar ao main"], "expected": ["declarar protótipo com parâmetro int*", "abrir main", "declarar int valor", "chamar função passando &valor", "imprimir valor após a função", "definir função com int* p", "usar *p para alterar o conteúdo", "retornar ao main"], "feedback": "Passagem por referência: o main envia o endereço com &, a função recebe int* e altera o conteúdo usando *p."}, {"type": "write", "title": "Ponteiro para struct", "prompt": "Explique a receita para acessar RA e nome de um Aluno usando Aluno* p_aluno.", "instruction": "Diga o papel de &, do ponteiro e do operador ->.", "must": [["Aluno*", "ponteiro"], ["&aluno", "endereço"], ["->"], ["RA", "ra"], ["nome"]], "feedback": "A receita: criar Aluno aluno, criar Aluno* p_aluno = &aluno, acessar campos com p_aluno->RA e p_aluno->nome."}]}, {"id": "nivel-10", "title": "Nível 10 - Tasks mistas de Engenharia de Software", "badge": "Integração", "objective": "Praticar enunciados que misturam várias partes da matéria, como em prova e projetos reais.", "lesson": "Problemas reais misturam entrada, validação, repetição, struct, array, função e saída. A habilidade é separar responsabilidades antes de escrever código.", "concepts": ["integração", "arquitetura do código", "responsabilidades", "main", "funções auxiliares"], "tasks": [{"type": "tags", "title": "Mini sistema de alunos", "prompt": "Cadastre 5 alunos com RA, nome e nota; calcule a média geral usando uma função; liste os alunos aprovados com nota >= 7.", "instruction": "Marque os blocos necessários.", "tags": ["typedef struct Aluno", "array de Aluno", "for de cadastro", "função de média", "if de aprovado", "printf", "scanf", "ponteiro obrigatório", "switch obrigatório", "matriz"], "expected": ["typedef struct Aluno", "array de Aluno", "for de cadastro", "função de média", "if de aprovado", "printf", "scanf"], "feedback": "Aqui tem entidade heterogênea, coleção, repetição, função e decisão. É um excelente treino de prova."}, {"type": "order", "title": "Arquitetura de mini sistema", "prompt": "Monte o esqueleto de um programa com menu: 1 cadastrar alunos, 2 listar alunos, 3 calcular média, 0 sair.", "instruction": "Monte a ordem do esqueleto.", "blocks": ["incluir bibliotecas", "definir struct Aluno", "declarar protótipos das funções", "abrir main", "declarar array de alunos e controle de quantidade", "abrir do while do menu", "mostrar menu e ler opção", "usar switch(opcao)", "case cadastrar chama função", "case listar chama função", "case média chama função", "while(opcao != 0)", "definir funções após o main"], "expected": ["incluir bibliotecas", "definir struct Aluno", "declarar protótipos das funções", "abrir main", "declarar array de alunos e controle de quantidade", "abrir do while do menu", "mostrar menu e ler opção", "usar switch(opcao)", "case cadastrar chama função", "case listar chama função", "case média chama função", "while(opcao != 0)", "definir funções após o main"], "feedback": "Esse é o esqueleto de um sistema simples: structs + array + menu + switch + funções."}, {"type": "write", "title": "Plano antes do código", "prompt": "Receita para: ler 8 caracteres em um array, percorrer com ponteiro e imprimir endereço + valor de cada posição.", "instruction": "Escreva a receita em passos, mencionando array, ponteiro, for, %p e *.", "must": [["char", "array"], ["ponteiro", "char*"], ["for"], ["%p"], ["*", "desreferenciar", "valor apontado"], ["incrementar", "p++", "próxima posição"]], "feedback": "Receita esperada: declarar array de char, apontar char* para o início, usar for, imprimir endereço com %p e valor com *p, depois incrementar o ponteiro."}]}, {"id": "prova-final", "title": "Prova final - montar o esqueleto sem ver solução", "badge": "Prova", "objective": "Provar que você consegue transformar enunciados grandes em receita técnica.", "lesson": "A prova não mede só saber sintaxe. Mede se você consegue arquitetar a solução antes de codar.", "concepts": ["prova", "receita", "esqueleto", "integração"], "tasks": [{"type": "write", "title": "Questão 1 - Função + if", "prompt": "Leia três números e use uma função maiorDeTres() para retornar o maior. Monte a receita completa.", "instruction": "Não escreva a solução completa; escreva a arquitetura: protótipo, main, variáveis, chamada, função, ifs e retorno.", "must": [["protótipo", "prototipo"], ["main"], ["três", "3"], ["scanf", "ler"], ["maiorDeTres"], ["if"], ["return", "retornar"]], "feedback": "A arquitetura precisa separar leitura no main e comparação dentro da função maiorDeTres."}, {"type": "write", "title": "Questão 2 - Array + função", "prompt": "Leia 10 valores em um vetor e use uma função para calcular a média. Monte a receita completa.", "instruction": "Diga quais blocos entram e em que responsabilidade ficam.", "must": [["array", "vetor"], ["10"], ["for"], ["scanf"], ["função", "funcao"], ["média", "media"], ["return", "retornar"]], "feedback": "Precisa de vetor, for de leitura, função que percorre o vetor e retorna média, e main imprimindo o resultado."}, {"type": "write", "title": "Questão 3 - Struct + array + filtro", "prompt": "Cadastre 5 produtos com código, nome e preço. Depois liste apenas os produtos com preço acima de 100. Monte a receita.", "instruction": "Foque em struct, array de struct, for e if.", "must": [["struct", "typedef"], ["código", "codigo"], ["nome"], ["preço", "preco"], ["array", "vetor"], ["for"], ["if"], ["100"]], "feedback": "Produto é heterogêneo; vários produtos pedem array de struct; filtro por preço pede if dentro do for."}, {"type": "write", "title": "Questão 4 - Ponteiro e referência", "prompt": "Crie uma função reajustar() que receba o endereço de um preço e aplique aumento de 10%. Monte a receita.", "instruction": "Mencione parâmetro ponteiro, chamada com &, alteração com * e retorno void se fizer sentido.", "must": [["void", "sem retorno"], ["ponteiro", "float*"], ["&"], ["*"], ["10%", "0.10", "1.10"], ["preço", "preco"]], "feedback": "Como a função altera o valor original pelo endereço, faz sentido receber float* e usar *p para modificar."}]}];
+    const STORAGE_KEY = 'treino_esqueleto_c_v4_sem_recarregar';
+    let state = loadState();
+    let currentLevelIndex = Math.min(state.unlocked || 0, LEVELS.length - 1);
+
+    function loadState(){
+      try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {unlocked:0, completed:{}, tasks:{}}; }
+      catch(e){ return {unlocked:0, completed:{}, tasks:{}}; }
+    }
+    function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); updateProgress(); renderNav(); }
+    function resetProgress(silent){ state = {unlocked:0, completed:{}, tasks:{}}; currentLevelIndex=0; localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); renderAll(); if(!silent) toast('Treino reiniciado. Comece pelo Nível 0.'); }
+    function unlockAll(){ state.unlocked = LEVELS.length-1; saveState(); renderAll(); toast('Todos os níveis foram desbloqueados.'); }
+
+    function normalize(s){return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();}
+    function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
+    function levelTaskKey(levelIdx, taskIdx){ return `${LEVELS[levelIdx].id}:${taskIdx}`; }
+    function isTaskDone(levelIdx, taskIdx){ return !!state.tasks[levelTaskKey(levelIdx, taskIdx)]; }
+    function markTaskDone(levelIdx, taskIdx, wrap){
+      const taskKey = levelTaskKey(levelIdx, taskIdx);
+      const wasCompleted = !!state.completed[LEVELS[levelIdx].id];
+      const beforeUnlocked = state.unlocked;
+
+      state.tasks[taskKey] = true;
+
+      const completedNow = isLevelDone(levelIdx);
+      if(completedNow){
+        state.completed[LEVELS[levelIdx].id] = true;
+        if(levelIdx + 1 < LEVELS.length){
+          state.unlocked = Math.max(state.unlocked, levelIdx + 1);
+        }
+      }
+
+      try{
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch(e){
+        toast('Não consegui salvar no navegador, mas mantive a conclusão nesta tela.');
+      }
+
+      // Não re-renderiza o nível inteiro. Isso evitava a sensação de “recarregar”
+      // e impedia você de ver a confirmação logo depois de acertar.
+      updateProgress();
+      renderNav();
+      decorateTaskAsDone(levelIdx, taskIdx, wrap);
+      refreshLevelFooter(levelIdx);
+
+      if(completedNow && !wasCompleted){
+        if(state.unlocked > beforeUnlocked && levelIdx + 1 < LEVELS.length){
+          toast('Nível concluído! Próximo nível liberado.');
+        } else {
+          toast('Nível concluído!');
+        }
+      } else {
+        toast('Atividade concluída e salva.');
+      }
+    }
+
+    function decorateTaskAsDone(levelIdx, taskIdx, wrap){
+      const taskEl = wrap || document.querySelector(`[data-level="${levelIdx}"][data-task="${taskIdx}"]`);
+      if(!taskEl) return;
+      const h3 = taskEl.querySelector('h3');
+      if(h3 && !h3.textContent.trim().startsWith('✅')){
+        h3.textContent = '✅ ' + LEVELS[levelIdx].tasks[taskIdx].title;
+      }
+      taskEl.style.borderColor = 'rgba(61,220,151,.45)';
+    }
+
+    function refreshLevelFooter(levelIdx){
+      const sec = document.getElementById(LEVELS[levelIdx].id);
+      if(!sec) return;
+      const footer = sec.querySelector('.footerActions');
+      if(!footer) return;
+      const done = isLevelDone(levelIdx);
+      const mini = footer.querySelector('.mini');
+      if(mini){
+        mini.innerHTML = `<span class="statusDot ${done?'done':''}"></span> ${done?'Nível concluído. Próximo nível liberado.':'Conclua todas as atividades para desbloquear o próximo nível.'}`;
+      }
+      const actions = footer.querySelector('.actions');
+      if(actions){
+        actions.innerHTML = `${done && levelIdx+1 < LEVELS.length ? `<button type="button" class="btn good" data-next-level="${levelIdx+1}">Ir para o próximo nível</button>` : ''}<button type="button" class="btn" data-top="true">Voltar ao topo</button>`;
+        const nextBtn = actions.querySelector('[data-next-level]');
+        if(nextBtn) nextBtn.onclick = () => showLevel(levelIdx+1);
+        const topBtn = actions.querySelector('[data-top]');
+        if(topBtn) topBtn.onclick = () => scrollToTop();
+      }
+    }
+    function isLevelDone(levelIdx){ return LEVELS[levelIdx].tasks.every((_,ti)=> isTaskDone(levelIdx,ti)); }
+
+    function renderAll(){ renderNav(); renderLevels(); updateProgress(); showLevel(currentLevelIndex); }
+    function renderNav(){
+      const nav=document.getElementById('navLevels'); nav.innerHTML='';
+      LEVELS.forEach((level, idx)=>{
+        const btn=document.createElement('button');
+        btn.type='button';
+        btn.className='levelBtn'+(idx>state.unlocked?' locked':'')+(state.completed[level.id]?' done':'');
+        btn.innerHTML = `${idx>state.unlocked?'🔒':'🧭'} ${idx===LEVELS.length-1?'Prova':idx} ${state.completed[level.id]?'✓':''}`;
+        btn.title=level.title;
+        btn.onclick=()=>{ if(idx>state.unlocked){ toast('Conclua o nível anterior para desbloquear este.'); return;} showLevel(idx); };
+        nav.appendChild(btn);
+      });
+    }
+    function updateProgress(){
+      const total=LEVELS.reduce((acc,l)=>acc+l.tasks.length,0);
+      const done=Object.keys(state.tasks||{}).length;
+      const pct=Math.round(done/total*100);
+      document.getElementById('barFill').style.width=pct+'%';
+      document.getElementById('progressText').textContent=`${done}/${total} atividades concluídas - ${pct}%`;
+    }
+    function renderLevels(){
+      const cont=document.getElementById('levelsContainer'); cont.innerHTML='';
+      LEVELS.forEach((level, li)=>{
+        const sec=document.createElement('section'); sec.id=level.id; sec.className='level card';
+        sec.innerHTML = `
+          <div class="levelHeader">
+            <div>
+              <h2>${escapeHtml(level.title)}</h2>
+              <p class="note"><b>Objetivo:</b> ${escapeHtml(level.objective)}</p>
+              <p>${escapeHtml(level.lesson)}</p>
+              <div class="concepts">${level.concepts.map(c=>`<code>${escapeHtml(c)}</code>`).join('')}</div>
+            </div>
+            <span class="badge">${escapeHtml(level.badge)}</span>
+          </div>
+          <div class="tasks"></div>
+          <div class="footerActions">
+            <div class="mini"><span class="statusDot ${isLevelDone(li)?'done':''}"></span> ${isLevelDone(li)?'Nível concluído. Próximo nível liberado.':'Conclua todas as atividades para desbloquear o próximo nível.'}</div>
+            <div class="actions" style="margin-top:0">
+              ${isLevelDone(li) && li+1 < LEVELS.length ? `<button type="button" class="btn good" onclick="showLevel(${li+1})">Ir para o próximo nível</button>` : ''}
+              <button type="button" class="btn" onclick="scrollToTop()">Voltar ao topo</button>
+            </div>
+          </div>`;
+        const tasksDiv=sec.querySelector('.tasks');
+        level.tasks.forEach((task, ti)=> tasksDiv.appendChild(renderTask(task, li, ti)) );
+        cont.appendChild(sec);
+      });
+    }
+    function renderTask(task, li, ti){
+      const wrap=document.createElement('article'); wrap.className='task'; wrap.dataset.level=li; wrap.dataset.task=ti; wrap.dataset.type=task.type;
+      const done=isTaskDone(li,ti);
+      wrap.innerHTML = `
+        <div class="taskTop">
+          <div><h3>${done?'✅ ':''}${escapeHtml(task.title)}</h3><div class="taskType">${labelType(task.type)}</div></div>
+          <div class="mini">Atividade ${ti+1}/${LEVELS[li].tasks.length}</div>
+        </div>
+        <div class="prompt">${escapeHtml(task.prompt)}</div>
+        <div class="instruction">${escapeHtml(task.instruction)}</div>
+        <div class="taskBody"></div>
+        <div class="actions"></div>
+        <div class="feedback"></div>`;
+      const body=wrap.querySelector('.taskBody'); const actions=wrap.querySelector('.actions');
+      if(task.type==='tags') renderTagsTask(task, wrap, body, actions, li, ti);
+      if(task.type==='order') renderOrderTask(task, wrap, body, actions, li, ti);
+      if(task.type==='write') renderWriteTask(task, wrap, body, actions, li, ti);
+      return wrap;
+    }
+    function labelType(type){return type==='tags'?'Identificar blocos':type==='order'?'Ordenar receita':'Escrever esqueleto';}
+    function renderTagsTask(task, wrap, body, actions, li, ti){
+      const chips=document.createElement('div'); chips.className='chips';
+      task.tags.forEach(tag=>{
+        const b=document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=tag; b.onclick=()=>b.classList.toggle('selected'); chips.appendChild(b);
+      });
+      body.appendChild(chips);
+      actions.innerHTML = `<button type="button" class="btn primary">Conferir blocos</button><button type="button" class="btn warn">Dica</button>`;
+      actions.children[0].onclick=()=>{
+        const selected=[...chips.querySelectorAll('.selected')].map(b=>b.textContent);
+        const exp=task.expected;
+        const ok = exp.every(x=>selected.includes(x)) && selected.every(x=>exp.includes(x));
+        showFeedback(wrap, ok, ok? task.feedback : `Ainda não. Compare sua seleção com o enunciado: o que entra, o que guarda, o que processa, o que sai? Evite marcar blocos que o enunciado não pediu.`);
+        if(ok) markTaskDone(li,ti,wrap);
+      };
+      actions.children[1].onclick=()=> showFeedback(wrap, null, `Dica: procure verbos e substantivos do enunciado. "Leia" costuma indicar entrada. "Mostre" indica saída. "Maior/se" indica decisão. "Vários/10" pode indicar repetição ou array.`, 'hint');
+    }
+    function renderOrderTask(task, wrap, body, actions, li, ti){
+      const source=document.createElement('div'); source.className='chips source';
+      const answer=document.createElement('div'); answer.className='answerBox'; answer.innerHTML='<span class="mini">Sua ordem aparecerá aqui. Clique em um bloco para remover.</span>';
+      const blocks=shuffle(task.blocks);
+      blocks.forEach(block=>{
+        const b=document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=block; b.onclick=()=>{
+          b.classList.add('used'); addAnswerChip(answer, block, b);
+        }; source.appendChild(b);
+      });
+      body.appendChild(source); body.appendChild(answer);
+      actions.innerHTML = `<button type="button" class="btn primary">Conferir ordem</button><button type="button" class="btn">Limpar</button><button type="button" class="btn warn">Dica</button>`;
+      actions.children[0].onclick=()=>{
+        const selected=[...answer.querySelectorAll('button.chip')].map(b=>b.textContent);
+        const ok=JSON.stringify(selected)===JSON.stringify(task.expected);
+        showFeedback(wrap, ok, ok? task.feedback : `Ainda não. Tente pensar na sequência: preparar ambiente -> declarar dados -> entrada -> processamento -> saída -> finalização.`);
+        if(ok) markTaskDone(li,ti,wrap);
+      };
+      actions.children[1].onclick=()=>{ [...source.querySelectorAll('.chip')].forEach(b=>b.classList.remove('used')); answer.innerHTML='<span class="mini">Sua ordem aparecerá aqui. Clique em um bloco para remover.</span>'; };
+      actions.children[2].onclick=()=> showFeedback(wrap, null, `Dica: uma receita não começa pelo if ou pelo for. Antes você precisa ter variáveis e dados disponíveis.`, 'hint');
+    }
+    function addAnswerChip(answer, text, sourceBtn){
+      if(answer.querySelector('.mini')) answer.innerHTML='';
+      const b=document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=text; b.onclick=()=>{ b.remove(); sourceBtn.classList.remove('used'); if(!answer.querySelector('button')) answer.innerHTML='<span class="mini">Sua ordem aparecerá aqui. Clique em um bloco para remover.</span>'; };
+      answer.appendChild(b);
+    }
+    function renderWriteTask(task, wrap, body, actions, li, ti){
+      const ta=document.createElement('textarea'); ta.placeholder='Escreva aqui sua receita em passos. Ex.: 1) declarar... 2) ler... 3) chamar função...';
+      body.appendChild(ta);
+      const checklist=document.createElement('div'); checklist.className='score mini'; checklist.textContent='Critério: sua resposta precisa conter as ideias-chave do enunciado, não palavras exatas.'; body.appendChild(checklist);
+      actions.innerHTML = `<button type="button" class="btn primary">Conferir palavras-chave</button><button type="button" class="btn warn">Ver dica</button><button type="button" class="btn">Ver critério</button>`;
+      actions.children[0].onclick=()=>{
+        const txt=normalize(ta.value);
+        let missing=[];
+        task.must.forEach(group=>{
+          const ok=group.some(word=> txt.includes(normalize(word)) );
+          if(!ok) missing.push(group.join(' / '));
+        });
+        const ok=missing.length===0;
+        showFeedback(wrap, ok, ok? task.feedback : `Está faltando aparecer na sua receita: ${missing.join('; ')}. Reescreva pensando nos blocos do funil.`);
+        if(ok) markTaskDone(li,ti,wrap);
+      };
+      actions.children[1].onclick=()=> showFeedback(wrap, null, `Dica: escreva em passos curtos. Não tente programar. Use palavras como declarar, ler, calcular, comparar, repetir, chamar função, retornar e imprimir.`, 'hint');
+      actions.children[2].onclick=()=> showFeedback(wrap, null, `Critérios esperados: ${task.must.map(g=>`[${g.join(' ou ')}]`).join(', ')}`, 'hint');
+    }
+    function showFeedback(wrap, ok, msg, forced){
+      const f=wrap.querySelector('.feedback'); f.className='feedback show '+(forced?forced:(ok?'ok':'no'));
+      f.innerHTML = `${ok===true?'✅': ok===false?'⚠️':'💡'} ${escapeHtml(msg)}`;
+    }
+    function showLevel(idx){
+      currentLevelIndex=idx;
+      document.querySelectorAll('.level').forEach((el,i)=>el.classList.toggle('active', i===idx));
+      setTimeout(()=>document.getElementById(LEVELS[idx].id).scrollIntoView({behavior:'smooth', block:'start'}), 30);
+    }
+    function scrollToTop(){ window.scrollTo({top:0, behavior:'smooth'}); }
+    function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 3200); }
+    function escapeHtml(s){ return String(s).replace(/[&<>'"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+    document.addEventListener('click', function(ev){
+      const btn = ev.target.closest && ev.target.closest('button');
+      if(btn) ev.preventDefault();
+    });
+    renderAll();
+  </script>
+</body>
+</html>
