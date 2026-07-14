@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Treinamento - Ponteiros, Alocação Dinâmica e Recursividade</title>
+<style>
+:root{
+  --bg:#0d0d18; --panel:#19192b; --panel2:#23243a; --card:#2d2d43;
+  --ink:#f5f3ff; --muted:#c9c4e5; --soft:#a79fcb;
+  --brand:#7c3aed; --brand2:#22c55e; --danger:#ef4444; --warn:#f59e0b;
+  --line:rgba(255,255,255,.14); --shadow:0 20px 70px rgba(0,0,0,.35);
+  --code:#10111f; --accent:#f8e08e;
+  --radius:20px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{margin:0;min-height:100vh;min-height:100dvh;overflow-x:hidden;background:radial-gradient(circle at 20% -10%,#392166 0,#151528 35%,#0d0d18 70%); color:var(--ink); font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height:1.58;}
+a{color:#d8ccff}
+
+/* ===== Mobile-first base (default = phones) ===== */
+.wrap{width:100%;margin:0 auto;padding:16px max(14px,env(safe-area-inset-right)) max(60px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left))}
+header.hero{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:20px;padding:21px 17px;background:linear-gradient(135deg,rgba(124,58,237,.28),rgba(34,197,94,.08)), var(--panel); box-shadow:var(--shadow)}
+.badge{display:inline-flex;gap:7px;align-items:center;border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:6px 11px;color:#e9ddff;background:rgba(255,255,255,.07);font-size:.78rem;max-width:100%;white-space:normal}
+h1{font-size:clamp(2.15rem,12vw,3.2rem);line-height:1.03;margin:16px 0 10px;letter-spacing:-.05em;overflow-wrap:anywhere}
+h2{font-size:clamp(1.45rem,8vw,2rem);line-height:1.14;margin:0 0 12px;letter-spacing:-.035em}
+h3{font-size:1.18rem;margin:22px 0 8px;color:#fff}
+h4{font-size:1rem;margin:16px 0 8px;color:#fff}
+p{margin:10px 0;color:var(--muted)}
+.lead{font-size:1rem;color:#e7e1ff}
+.grid{display:grid;gap:12px;grid-template-columns:1fr}
+.grid.two,.grid.three{grid-template-columns:1fr}
+.split{display:grid;grid-template-columns:1fr;gap:12px}
+.card{border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.025));border-radius:17px;padding:15px;box-shadow:0 8px 30px rgba(0,0,0,.18)}
+.mini{padding:13px 14px;border-radius:16px;background:rgba(255,255,255,.055);border:1px solid var(--line)}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:6px 8px;border-radius:999px;background:rgba(124,58,237,.16);border:1px solid rgba(124,58,237,.45);color:#e8ddff;font-weight:700;font-size:.72rem;margin:2px}
+.pill.green{background:rgba(34,197,94,.13);border-color:rgba(34,197,94,.45);color:#d7ffe5}.pill.warn{background:rgba(245,158,11,.14);border-color:rgba(245,158,11,.45);color:#ffe9bd}.pill.red{background:rgba(239,68,68,.14);border-color:rgba(239,68,68,.45);color:#ffd0d0}
+.tagline{display:flex;gap:5px;flex-wrap:wrap}
+.toc{position:sticky;top:0;z-index:10;margin:14px 0 20px;background:rgba(13,13,24,.88);backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:16px;padding:9px;display:flex;gap:8px;overflow:auto;scroll-snap-type:x proximity;scrollbar-width:thin}
+.toc button{white-space:nowrap;border:0;border-radius:999px;padding:9px 13px;background:rgba(255,255,255,.08);color:var(--ink);cursor:pointer;font-weight:800;min-height:44px;scroll-snap-align:start}.toc button.locked{opacity:.45}.toc button.active{background:linear-gradient(135deg,var(--brand),#4f46e5)}
+section.level{margin:22px 0;border:1px solid var(--line);border-radius:24px;background:rgba(20,20,34,.86);box-shadow:var(--shadow);overflow:hidden}
+.levelHead{padding:18px 18px 16px;border-bottom:1px solid var(--line);background:linear-gradient(135deg,rgba(124,58,237,.2),rgba(255,255,255,.03))}
+.levelBody{padding:12px}
+.lockedBox{padding:28px 18px;text-align:center}.lockIcon{font-size:2.3rem}
+.meter{height:12px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;border:1px solid var(--line)}.bar{height:100%;width:0%;background:linear-gradient(90deg,var(--brand),var(--brand2));transition:.35s}.status{font-weight:900;color:#d7ffe5;display:inline-block;margin-top:10px}
+.quote{border-left:4px solid var(--brand2);padding:11px 13px;background:rgba(34,197,94,.08);border-radius:0 14px 14px 0;color:#e6ffee}.warning{border-left-color:var(--warn);background:rgba(245,158,11,.08);color:#ffe9bd}.danger{border-left-color:var(--danger);background:rgba(239,68,68,.08);color:#ffd2d2}
+code,kbd{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.12);padding:.12rem .35rem;border-radius:7px;color:#fff}
+pre{background:var(--code);border:1px solid rgba(255,255,255,.12);padding:14px;border-radius:16px;overflow:auto;position:relative;color:#f4f0ff;line-height:1.45;font-size:.85rem;-webkit-overflow-scrolling:touch}
+pre .label{position:absolute;top:8px;right:10px;font-size:.68rem;color:#bcb5d9;background:rgba(255,255,255,.07);padding:2px 7px;border-radius:999px}
+table{width:100%;border-collapse:collapse;margin:14px 0;background:rgba(255,255,255,.035);border-radius:14px;display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;font-size:.86rem}
+th,td{border:1px solid rgba(255,255,255,.12);padding:8px;text-align:left;vertical-align:top;min-width:135px}th{background:rgba(124,58,237,.25);color:#fff}td{color:#ddd7f7}
+.quiz{display:grid;gap:12px}.q{border:1px solid var(--line);border-radius:16px;padding:13px;background:rgba(255,255,255,.045)}.q strong{display:block;margin-bottom:8px}
+.q label{display:flex;align-items:flex-start;gap:8px;min-height:44px;margin:8px 0;padding:10px;border-radius:12px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);cursor:pointer}
+.q input[type=radio]{flex:0 0 auto;margin-top:4px;transform:scale(1.15)}
+textarea,input[type=text]{width:100%;min-height:150px;border-radius:15px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);color:#fff;padding:12px;font:inherit;font-size:16px;outline:none}input[type=text]{min-height:auto}
+.answer{display:none;margin-top:10px}.answer.show{display:block}
+.btns{display:grid;grid-template-columns:1fr;gap:10px;margin-top:14px}
+.btn{min-height:46px;border:0;border-radius:15px;padding:11px 16px;background:linear-gradient(135deg,var(--brand),#4f46e5);color:#fff;font-weight:900;cursor:pointer;box-shadow:0 10px 22px rgba(79,70,229,.2);width:100%}
+.btn.secondary{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);box-shadow:none}
+.btn.good{background:linear-gradient(135deg,#16a34a,#22c55e)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn:focus-visible,.toc button:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.checkpoint>.btn,.footer .btn{width:100%}
+.result{margin-top:12px;padding:12px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:#e8e2ff}
+.ok{color:#a7f3d0}.bad{color:#fecaca}.taskDone{border-color:rgba(34,197,94,.65)!important;box-shadow:0 0 0 1px rgba(34,197,94,.3) inset}
+.small{font-size:.88rem;color:var(--soft)}
+.checkpoint{margin-top:18px;border:1px solid rgba(34,197,94,.35);background:rgba(34,197,94,.08);border-radius:18px;padding:15px}
+.checklist li{margin:7px 0;color:#dcd6f6}
+.flash{display:grid;grid-template-columns:1fr;gap:12px}.flash div{border:1px solid var(--line);border-radius:16px;padding:13px;background:rgba(255,255,255,.045)}.flash b{color:#fff}
+.kbdrow{display:flex;gap:8px;flex-wrap:wrap}.kbdrow kbd{font-weight:800}
+.footer{opacity:.8;text-align:center;padding:30px 0}
+
+/* ===== Tablet and up ===== */
+@media(min-width:641px){
+  .wrap{padding-inline:20px}
+  header.hero{padding:26px 24px;border-radius:24px}
+  .grid.two,.split{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .grid{gap:16px}
+  .card{padding:19px;border-radius:20px}
+  .levelHead{padding:22px}
+  .levelBody{padding:18px}
+  .btns{grid-template-columns:repeat(auto-fit,minmax(190px,auto));display:flex;flex-wrap:wrap}
+  .btns .btn{width:auto}
+  table{display:table;font-size:.92rem}
+  th,td{min-width:0}
+  pre{font-size:.92rem}
+  .flash{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+  .checkpoint>.btn,.footer .btn{width:auto}
+}
+
+/* ===== Desktop ===== */
+@media(min-width:1025px){
+  .wrap{max-width:1180px;padding:28px 18px 80px}
+  header.hero{padding:36px}
+  h1{font-size:clamp(2.6rem,5vw,4.2rem)}
+  h2{font-size:clamp(1.9rem,3vw,2.6rem)}
+  .grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .toc{overflow:visible;flex-wrap:wrap}
+}
+
+@media(hover:hover) and (pointer:fine){.q label:hover{border-color:rgba(124,58,237,.55)}.toc button:not(.locked):hover{filter:brightness(1.15)}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.bar{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <span class="badge">🎮 Novo treinamento • Ponteiros, Alocação Dinâmica e Recursividade</span>
+    <h1>Memória, Ponteiros<br/>e Recursão Quest</h1>
+    <p class="lead">Treinamento gamificado cobrindo os três próximos conteúdos da disciplina: Endereçamento de Memória e Ponteiros, Alocação Dinâmica (<code>malloc</code>, <code>calloc</code>, <code>realloc</code>, <code>free</code>) e Recursividade. Cada nível traduz a analogia didática para o termo técnico esperado numa prova de Estrutura de Dados.</p>
+    <div class="tagline">
+      <span class="pill green">explicação lúdica</span><span class="pill">explicação técnica</span><span class="pill warn">tradução para prova</span><span class="pill red">pegadinhas</span><span class="pill green">prática de código</span>
+    </div>
+    <div style="margin-top:18px" class="meter"><div id="globalBar" class="bar"></div></div>
+    <p class="small"><span id="globalStatus">0%</span> concluído. Os níveis desbloqueiam em sequência.</p>
+  </header>
+
+  <nav class="toc" id="toc"></nav>
+
+  <section class="card">
+    <h2>Mapa de cobertura dos PDFs</h2>
+    <p>Auditoria rápida: se caiu nos slides, está mapeado em algum nível abaixo.</p>
+    <div class="grid three">
+      <div class="mini"><h3>Ponteiros e Endereçamento</h3><p>RAM, Von Neumann, bit/byte/página/segmento, endereço absoluto/real/virtual, operador <code>&amp;</code>, <code>%p</code>, nibble, <code>scanf</code> por endereço, strings por referência e caractere nulo, declaração e atribuição de ponteiros, desreferenciação <code>*</code>, passagem por referência, ponteiros com vetores, ponteiro de struct <code>-&gt;</code>, ponteiro de ponteiro <code>**</code>.</p></div>
+      <div class="mini"><h3>Alocação Dinâmica</h3><p>Alocação estática x dinâmica, operador <code>sizeof</code>, <code>malloc</code>, <code>calloc</code>, diferenças de assinatura e de comportamento (zeros), serializações dinâmicas percorridas por ponteiro, <code>realloc</code>, <code>free</code> e alocação dinâmica de registros/structs.</p></div>
+      <div class="mini"><h3>Recursividade</h3><p>Definição de recursão, "dividir para conquistar", caso base e caso recursivo, vantagens e desvantagens, algoritmo Fatorial, algoritmo Fibonacci, Call Stack (LIFO), Stack Overflow e o papel da recursividade em estruturas de dados.</p></div>
+    </div>
+  </section>
+
+  <!-- LEVEL 1 -->
+  <section class="level" id="level1" data-level="1">
+    <div class="levelHead"><span class="badge">Nível 1</span><h2>Endereçamento de memória: RAM, Von Neumann e tipos de endereço</h2><p>A base necessária antes de declarar o primeiro ponteiro.</p><div class="status" data-status>Bloqueado</div></div>
+    <div class="levelBody">
+      <div class="split">
+        <div class="card"><h3>Explicação lúdica</h3><p>Pense na memória RAM como um condomínio recém-construído: cada apartamento tem uma porta numerada (endereço), mas os móveis (dados) só existem enquanto o condomínio está com a energia ligada (memória volátil). O HD/SSD é o depósito no porão: mais lento para buscar coisas, mas guarda tudo mesmo com a luz apagada.</p><p>O processador é o morador que só trabalha com o que está dentro do condomínio (RAM); por isso o sistema sempre traz os dados do porão para um apartamento antes de usá-los.</p></div>
+        <div class="card"><h3>Explicação técnica</h3><p>A RAM (Random Access Memory) é a memória volátil que armazena informações temporárias do sistema operacional e dos aplicativos. Ela intermedia disco e processador porque, mesmo sendo volátil, é mais rápida que qualquer unidade de armazenamento em massa, incluindo SSDs.</p><p>O modelo de funcionamento com unidade de processamento, unidade de massa de dados e memória volátil trabalhando juntas parte da <b>Arquitetura de Von Neumann</b>, que permite armazenar programas no mesmo espaço de memória que os dados, possibilitando que o próprio programa seja manipulado como dado.</p></div>
+      </div>
+      <div class="card"><h3>Unidades e tipos de endereço</h3><table><tr><th>Termo</th><th>Definição técnica</th></tr><tr><td>bit</td><td>Menor unidade, valor 0 ou 1.</td></tr><tr><td>byte</td><td>Agrupamento de 8 bits.</td></tr><tr><td>página</td><td>Agrupamento de 4096 bytes.</td></tr><tr><td>segmento</td><td>Agrupamento de 256 páginas.</td></tr><tr><td>Endereço absoluto</td><td>Associado à localização física na memória central; usado pelo processador para acessar blocos da memória física.</td></tr><tr><td>Endereço real</td><td>Convertido para endereço absoluto por prefixação feita pelo próprio hardware; existe um endereço real para cada byte.</td></tr><tr><td>Endereço virtual</td><td>Disponível para cada aplicação; é convertido para real e depois para absoluto, isolando a memória entre programas.</td></tr></table></div>
+      <div class="grid two">
+        <div class="card"><h3>Vendo o endereço com <code>&amp;</code></h3><pre><code>int main(int argc, char const *argv[]) {
+    int valor;
+    printf("Endereco em Hex: %p\n", &amp;valor);
+    printf("Endereco em Dec: %d\n", &amp;valor);
+    return 0;
+}</code></pre><p><code>%p</code> é o formatador de ponteiro/endereço; <code>%d</code> mostra o mesmo endereço em decimal.</p></div>
+        <div class="card"><h3>O que o endereço <b>não</b> sabe sozinho</h3><p>O operador <code>&amp;</code> retorna apenas o endereço do <b>byte inicial</b> da variável. Ele não sabe quantos bytes fazem parte daquele espaçamento — quem informa isso é o <b>tipo</b> da variável (e o formatador usado em <code>scanf</code>/<code>printf</code>). Uma variável <code>int</code>, segundo o PDF, possui 2 bytes (16 bits); é responsabilidade do programador garantir que o formato usado corresponda ao tamanho correto do espaço.</p></div>
+      </div>
+      <div class="card"><h3>Quiz de identificação</h3><div class="quiz" data-quiz="q1">
+        <div class="q" data-answer="b"><strong>1. Sobre a memória volátil (RAM):</strong>
+          <label><input name="q1_1" type="radio" value="a"> É mais lenta que o disco rígido, por isso armazena apenas dados permanentes.</label>
+          <label><input name="q1_1" type="radio" value="b"> É um intermediário entre disco e processador e, mesmo sendo volátil, é mais rápida que unidades de armazenamento em massa, inclusive SSDs.</label>
+          <label><input name="q1_1" type="radio" value="c"> Substitui integralmente o processador na Arquitetura de Von Neumann.</label>
+          <label><input name="q1_1" type="radio" value="d"> Armazena exclusivamente o sistema operacional, nunca dados de aplicativos.</label>
+        </div>
+        <div class="q" data-answer="b"><strong>2. A característica central da Arquitetura de Von Neumann é:</strong>
+          <label><input name="q1_2" type="radio" value="a"> Programas e dados ficam fisicamente separados em memórias incompatíveis entre si.</label>
+          <label><input name="q1_2" type="radio" value="b"> Programas e dados compartilham o mesmo espaço de memória, permitindo manipular o programa como dado.</label>
+          <label><input name="q1_2" type="radio" value="c"> O processador acessa o disco rígido diretamente, sem intermediação da RAM.</label>
+          <label><input name="q1_2" type="radio" value="d"> Cada aplicativo recebe um processador físico dedicado.</label>
+        </div>
+        <div class="q" data-answer="c"><strong>3. Sobre os três tipos de endereço:</strong>
+          <label><input name="q1_3" type="radio" value="a"> O endereço virtual é convertido diretamente para o físico, sem passar pelo real.</label>
+          <label><input name="q1_3" type="radio" value="b"> O endereço absoluto é isolado por aplicação, impedindo que um programa acesse a memória de outro.</label>
+          <label><input name="q1_3" type="radio" value="c"> O endereço real é convertido em absoluto por prefixação do hardware, e o virtual é convertido em real antes de virar absoluto.</label>
+          <label><input name="q1_3" type="radio" value="d"> O endereço absoluto é sempre gerado pelo compilador antes da execução do programa.</label>
+        </div>
+      </div><div class="btns"><button class="btn" onclick="checkQuiz('q1')">Conferir quiz</button></div><div id="q1_result" class="result"></div></div>
+      <div class="card"><h3>Prática: tradução técnica</h3><p>Explique, com termos técnicos, por que <code>&amp;valor</code> não é suficiente para o computador saber quantos bytes ler a partir daquele endereço.</p><textarea data-keywords="tipo,formatador,bytes,programador" placeholder="Escreva sua explicação técnica..."></textarea><div class="btns"><button class="btn secondary" onclick="checkKeywords(this)">Conferir palavras-chave</button><button class="btn secondary" onclick="toggleAnswer(this)">Ver resposta modelo</button></div><div class="answer quote"><b>Modelo:</b> O operador <code>&amp;</code> retorna apenas o endereço do byte inicial da variável; ele não carrega informação sobre a quantidade de bytes do espaçamento. Cabe ao programador declarar o tipo correto e usar o formatador correspondente (como <code>%d</code> ou <code>%c</code>) para que o computador saiba exatamente quantos bytes considerar a partir daquele endereço.</div></div>
+      <div class="checkpoint"><h3>Checkpoint do nível</h3><p>Conclua o quiz e a prática para desbloquear o próximo nível.</p><button class="btn good" onclick="finishLevel(1)">Concluir nível 1</button><div class="result" id="finish1"></div></div>
+    </div>
+  </section>
+
+  <!-- LEVEL 2 -->
+  <section class="level" id="level2" data-level="2">
+    <div class="levelHead"><span class="badge">Nível 2</span><h2>Ponteiros: declaração, atribuição, scanf e desreferenciação</h2><p>O núcleo da manipulação de ponteiros em C.</p><div class="status" data-status>Bloqueado</div></div>
+    <div class="levelBody">
+      <div class="split">
+        <div class="card"><h3>Explicação lúdica</h3><p>Um ponteiro é como um controle remoto universal: ele não é a TV, mas guarda o "canal" (endereço) de uma TV específica. Se você aponta o controle certo, consegue ligar (<code>*p</code>) e trocar de canal (<code>*p = valor</code>) daquela TV, sem precisar tocar nela diretamente.</p></div>
+        <div class="card"><h3>Explicação técnica</h3><p>Ponteiros são espaços de memória responsáveis por armazenar o endereço de memória de outros espaços; podem ser constantes, variáveis ou parâmetros de função. Embora um endereço pudesse ser guardado em um <code>int</code> comum, usar ponteiro tem duas vantagens: ele indica o tipo do espaçamento referenciado e habilita operadores específicos (<code>*</code>).</p></div>
+      </div>
+      <div class="grid two">
+        <div class="card"><h3>Declaração</h3><pre><code>int variavelA;
+char variavelB;
+float variavelC;
+
+int* ponteiroA;
+char* ponteiroB;
+float* ponteiroC;</code></pre><p>Sintaxe: <code>tipo_do_espaçamento* nome_do_ponteiro;</code> — o tipo antes do <code>*</code> descreve o espaço apontado, não o ponteiro em si.</p></div>
+        <div class="card"><h3>Atribuição com <code>&amp;</code></h3><pre><code>int* ponteiroA = &amp;variavelA;
+char* ponteiroB = &amp;variavelB;
+float* ponteiroC = &amp;variavelC;</code></pre><p class="danger quote"><b>Pegadinha:</b> o endereço atribuído precisa ser do mesmo tipo do ponteiro. Se o tipo for incompatível, o computador calcula errado a quantidade de bytes do espaço.</p></div>
+      </div>
+      <div class="grid two">
+        <div class="card"><h3><code>scanf</code> com ponteiro</h3><pre><code>int valor;
+int* p_valor = &amp;valor;
+printf("Informe um numero: ");
+scanf("%d", p_valor);
+printf("Endereco: %p | Valor: %d", p_valor, *p_valor);</code></pre><p>Não se usa <code>&amp;</code> em <code>p_valor</code>, pois o ponteiro já guarda um endereço válido; usar <code>&amp;p_valor</code> apontaria para o endereço do próprio ponteiro, não do inteiro.</p></div>
+        <div class="card"><h3>Recuperar e atribuir com <code>*</code></h3><pre><code>int variavelA = 10;
+int* ponteiroA = &amp;variavelA;
+printf("%p = %d", ponteiroA, *ponteiroA);
+
+*ponteiroA = 25;
+printf("%d", variavelA); // 25</code></pre><p><code>*ponteiroA</code> lê o conteúdo do endereço apontado; <code>*ponteiroA = 25</code> reescreve esse conteúdo, alterando a variável original.</p></div>
+      </div>
+      <div class="card"><h3>Quiz</h3><div class="quiz" data-quiz="q2">
+        <div class="q" data-answer="b"><strong>1. Na sintaxe <code>tipo_do_espaçamento* nome_do_ponteiro;</code>:</strong>
+          <label><input name="q2_1" type="radio" value="a"> O tipo indicado define o tamanho do próprio ponteiro na memória, que muda conforme o tipo apontado.</label>
+          <label><input name="q2_1" type="radio" value="b"> O tipo indicado refere-se ao tipo do espaço de memória para o qual o ponteiro aponta, não ao tamanho do ponteiro em si.</label>
+          <label><input name="q2_1" type="radio" value="c"> O tipo é apenas decorativo e pode ser omitido sem prejuízo funcional.</label>
+          <label><input name="q2_1" type="radio" value="d"> Todo ponteiro deve obrigatoriamente ser inicializado com <code>malloc</code> antes de receber um endereço.</label>
+        </div>
+        <div class="q" data-answer="c"><strong>2. Em <code>scanf("%d", p_valor);</code>, com <code>p_valor</code> já apontando para uma variável válida:</strong>
+          <label><input name="q2_2" type="radio" value="a"> Deve-se usar <code>&amp;</code> antes de <code>p_valor</code>, pois <code>scanf</code> sempre exige endereço explícito.</label>
+          <label><input name="q2_2" type="radio" value="b"> O código está incorreto porque <code>scanf</code> não aceita ponteiros como argumento.</label>
+          <label><input name="q2_2" type="radio" value="c"> Não se usa <code>&amp;</code> porque <code>p_valor</code> já armazena um endereço válido; usar <code>&amp;</code> aqui apontaria para o endereço do próprio ponteiro, não do valor.</label>
+          <label><input name="q2_2" type="radio" value="d"> O resultado seria idêntico com ou sem <code>&amp;</code>, pois o compilador ignora ponteiros extras.</label>
+        </div>
+        <div class="q" data-answer="b"><strong>3. Sobre <code>*ponteiroA = 25;</code>, sendo <code>ponteiroA = &amp;variavelA</code>:</strong>
+          <label><input name="q2_3" type="radio" value="a"> Cria uma nova variável independente com valor 25, sem alterar <code>variavelA</code>.</label>
+          <label><input name="q2_3" type="radio" value="b"> Altera o conteúdo do espaço apontado, refletindo diretamente em <code>variavelA</code>, que passa a valer 25.</label>
+          <label><input name="q2_3" type="radio" value="c"> Altera apenas o endereço armazenado em <code>ponteiroA</code>, fazendo-o apontar para outro lugar.</label>
+          <label><input name="q2_3" type="radio" value="d"> É inválido em C atribuir valores usando o operador de desreferenciação.</label>
+        </div>
+      </div><div class="btns"><button class="btn" onclick="checkQuiz('q2')">Conferir quiz</button></div><div id="q2_result" class="result"></div></div>
+      <div class="card"><h3>Prática de código</h3><p>Escreva uma função <code>void dobrar(int* p)</code> que receba um ponteiro para inteiro e dobre o valor da variável apontada. No <code>main</code>, declare uma variável, chame a função por referência e imprima o resultado.</p><textarea data-keywords="void,dobrar,int*,*,&amp;,printf" placeholder="Seu código..."></textarea><div class="btns"><button class="btn secondary" onclick="checkKeywords(this)">Conferir estrutura</button><button class="btn secondary" onclick="toggleAnswer(this)">Ver solução</button></div><div class="answer quote"><pre><code>void dobrar(int* p) {
+    *p = *p * 2;
+}
+
+int main() {
+    int numero = 7;
+    dobrar(&amp;numero);
+    printf("%d", numero); // 14
+    return 0;
+}</code></pre></div></div>
+      <div class="checkpoint"><button class="btn good" onclick="finishLevel(2)">Concluir nível 2</button><div class="result" id="finish2"></div></div>
+    </div>
+  </section>
+
+  <!-- LEVEL 3 -->
+  <section class="level" id="level3" data-level="3">
+    <div class="levelHead"><span class="badge">Nível 3</span><h2>Ponteiros aplicados: vetores, structs e ponteiro de ponteiro</h2><p>Onde as provas costumam ficar mais perigosas.</p><div class="status" data-status>Bloqueado</div></div>
+    <div class="levelBody">
+      <div class="card"><h3>Ponteiros percorrendo vetores</h3><pre><code>char* retornarArray() {
+    static char array[8] = {'Z','X','Q','A','3','6','8','T'};
+    return array;
+}
+
+int main(int argc, char const *argv[]) {
+    char* p_array = retornarArray();
+    for (int i = 0; i &lt; 8; i++) {
+        printf("%p: %c\n", p_array, *p_array);
+        p_array++;
+    }
+    return 0;
+}</code></pre><p>O computador calcula os bytes necessários conforme o tipo apontado; como <code>p_array</code> é <code>char*</code>, cada <code>p_array++</code> avança exatamente um <code>char</code> na serialização.</p></div>
+      <div class="grid two">
+        <div class="card"><h3>Ponteiro de struct (<code>-&gt;</code>)</h3><pre><code>typedef struct {
+    int RA;
+    char nome[255];
+} Aluno;
+
+int main(int argc, char const *argv[]) {
+    Aluno aluno;
+    Aluno* p_aluno = &amp;aluno;
+    p_aluno-&gt;RA = 123456;
+    strcpy(p_aluno-&gt;nome, "Joao da Silva");
+    printf("RA: %d\n", p_aluno-&gt;RA);
+    printf("Nome: %s", p_aluno-&gt;nome);
+    return 0;
+}</code></pre><p>Com variável normal, use ponto: <code>aluno.RA</code>. Com ponteiro para struct, o operador seta já combina desreferenciação e acesso ao atributo.</p></div>
+        <div class="card"><h3>Ponteiro de ponteiro</h3><pre><code>int valor = 3;
+int* p_valor = &amp;valor;
+int** pp_valor = &amp;p_valor;
+
+printf("Ponteiro: %p\n", *pp_valor);
+printf("Valor: %d", **pp_valor);</code></pre><p><code>int**</code> guarda o endereço de outro ponteiro; <code>*pp_valor</code> devolve <code>p_valor</code>, e <code>**pp_valor</code> devolve o valor final apontado.</p></div>
+      </div>
+      <div class="card"><h3>Passagem por referência</h3><pre><code>#include &lt;stdio.h&gt;
+void funcao(char*);
+
+int main(int argc, char const *argv[]) {
+    char letra;
+    funcao(&amp;letra);
+    printf("%c", letra);
+    return 0;
+}
+
+void funcao(char* p) {
+    *p = 'X';
+}</code></pre><p>Funções como <code>scanf(string, *)</code> dependem de passagem por referência: a função recebe o endereço e altera o valor original diretamente.</p></div>
+      <div class="card"><h3>Quiz de identificação pesada</h3><div class="quiz" data-quiz="q3">
+        <div class="q" data-answer="b"><strong>1. Em <code>p_array++</code>, sendo <code>p_array</code> do tipo <code>char*</code>:</strong>
+          <label><input name="q3_1" type="radio" value="a"> Sempre avança exatamente 1 byte, independentemente do tipo apontado.</label>
+          <label><input name="q3_1" type="radio" value="b"> Avança o tamanho em bytes do tipo apontado (neste caso 1 byte de <code>char</code>), movendo para o próximo elemento da serialização.</label>
+          <label><input name="q3_1" type="radio" value="c"> Gera erro de compilação, pois ponteiros não podem ser incrementados.</label>
+          <label><input name="q3_1" type="radio" value="d"> Retorna automaticamente o ponteiro ao endereço inicial do array.</label>
+        </div>
+        <div class="q" data-answer="a"><strong>2. Sobre <code>p_aluno-&gt;RA</code> e <code>(*p_aluno).RA</code>:</strong>
+          <label><input name="q3_2" type="radio" value="a"> Produzem exatamente o mesmo resultado, pois <code>-&gt;</code> é uma forma abreviada de desreferenciar o ponteiro e acessar o atributo.</label>
+          <label><input name="q3_2" type="radio" value="b"> <code>-&gt;</code> acessa o atributo sem desreferenciar o ponteiro, algo impossível com <code>(*p_aluno).RA</code>.</label>
+          <label><input name="q3_2" type="radio" value="c"> O operador <code>-&gt;</code> só funciona em structs alocadas estaticamente, nunca com <code>malloc</code>.</label>
+          <label><input name="q3_2" type="radio" value="d"> Usar <code>-&gt;</code> dispensa a necessidade de o ponteiro apontar para um endereço válido.</label>
+        </div>
+        <div class="q" data-answer="b"><strong>3. Em <code>int** pp_valor = &amp;p_valor;</code>:</strong>
+          <label><input name="q3_3" type="radio" value="a"> <code>*pp_valor</code> retorna o valor inteiro final; <code>**pp_valor</code> retorna o endereço de <code>p_valor</code>.</label>
+          <label><input name="q3_3" type="radio" value="b"> <code>*pp_valor</code> retorna o ponteiro <code>p_valor</code> (um endereço); <code>**pp_valor</code> retorna o valor inteiro apontado por <code>p_valor</code>.</label>
+          <label><input name="q3_3" type="radio" value="c"> <code>*pp_valor</code> e <code>**pp_valor</code> são equivalentes e sempre retornam o mesmo valor.</label>
+          <label><input name="q3_3" type="radio" value="d"> <code>pp_valor</code> aponta diretamente para <code>valor</code>, dispensando <code>p_valor</code>.</label>
+        </div>
+      </div><div class="btns"><button class="btn" onclick="checkQuiz('q3')">Conferir quiz</button></div><div id="q3_result" class="result"></div></div>
+      <div class="card"><h3>Prática de código</h3><p>Crie uma <code>typedef struct Produto</code> com <code>codigo</code> (int) e <code>preco</code> (float). Escreva uma função <code>void aplicarDesconto(Produto* p, float percentual)</code> que reduza o preço usando o operador seta.</p><textarea data-keywords="typedef,struct,Produto,void,aplicarDesconto,-&gt;,Produto*" placeholder="Seu código..."></textarea><div class="btns"><button class="btn secondary" onclick="checkKeywords(this)">Conferir estrutura</button><button class="btn secondary" onclick="toggleAnswer(this)">Ver solução</button></div><div class="answer quote"><pre><code>typedef struct {
+    int codigo;
+    float preco;
+} Produto;
+
+void aplicarDesconto(Produto* p, float percentual) {
+    p-&gt;preco = p-&gt;preco - (p-&gt;preco * percentual / 100);
+}
+
+int main() {
+    Produto item;
+    item.codigo = 10;
+    item.preco = 100.0;
+    aplicarDesconto(&amp;item, 20);
+    printf("%f", item.preco); // 80.0
+    return 0;
+}</code></pre></div></div>
+      <div class="checkpoint"><button class="btn good" onclick="finishLevel(3)">Concluir nível 3</button><div class="result" id="finish3"></div></div>
+    </div>
+  </section>
+
+  <!-- LEVEL 4 -->
+  <section class="level" id="level4" data-level="4">
+    <div class="levelHead"><span class="badge">Nível 4</span><h2>Alocação estática x dinâmica e o operador sizeof</h2><p>A porta de entrada para malloc, calloc e realloc.</p><div class="status" data-status>Bloqueado</div></div>
+    <div class="levelBody">
+      <div class="split">
+        <div class="card"><h3>Explicação lúdica</h3><p>Alocação estática é como alugar uma sala com contrato fechado antes de saber quantas pessoas vão usar: o tamanho já vem definido e travado. Alocação dinâmica é alugar salas sob demanda, durante o evento, pedindo mais espaço (ou devolvendo) conforme a necessidade real aparece.</p></div>
+        <div class="card"><h3>Explicação técnica</h3><p>Na alocação estática, tipo e tamanho são definidos antes da execução (em tempo de compilação) e permanecem fixos durante toda a rotina/função. Na alocação dinâmica, a reserva de memória acontece durante a execução do programa, e as estruturas podem ser declaradas sem tamanho máximo definido antecipadamente — funções específicas alocam e liberam esse espaço em tempo real.</p></div>
+      </div>
+      <div class="card"><h3>Operador e funções de alocação</h3><pre><code>[operador]
+sizeof(type)
+
+[funções]
+void* malloc(int qty_bytes_alloc)
+void* calloc(int qty, int size)
+void* realloc(void* pointer, int new_size)
+free(void* pointer)</code></pre><p class="quote"><b>Atenção real de código:</b> na biblioteca padrão de C, esses parâmetros de tamanho são do tipo <code>size_t</code> (inteiro sem sinal), não <code>int</code> puro. A apostila simplifica a assinatura para fins didáticos; no seu editor, o autocomplete pode mostrar <code>size_t</code> — é a mesma ideia.</p></div>
+      <div class="grid two">
+        <div class="card"><h3><code>sizeof</code> em ação</h3><pre><code>struct Aluno {
+    int ra;
+    char nome[255];
+};
+
+int main(int argc, char const *argv[]) {
+    printf("int: %d bytes\n", sizeof(int));
+    printf("float: %d bytes\n", sizeof(float));
+    printf("char: %d bytes\n", sizeof(char));
+    printf("double: %d bytes\n", sizeof(double));
+    printf("struct Aluno: %d bytes", sizeof(struct Aluno));
+}</code></pre></div>
+        <div class="card"><h3>Por que usar <code>sizeof</code>?</h3><p><code>sizeof(type)</code> retorna a quantidade de bytes ocupados por qualquer tipo, de primitivos (<code>int</code>, <code>float</code>, <code>char</code>) a tipos estruturados (vetores, structs). Ele evita que o programador precise "chutar" o tamanho exato de um tipo — o que muda conforme compilador e arquitetura — garantindo segurança na hora de alocar.</p></div>
+      </div>
+      <div class="card"><h3><code>malloc</code>: primeira alocação dinâmica</h3><pre><code>int main(int argc, char const *argv[]) {
+    int* p_n1 = malloc(4);
+    int* p_n2 = malloc(sizeof(int));
+    printf("%p: %d\n", p_n1, *p_n1);
+    printf("%p: %d\n", p_n2, *p_n2);
+}</code></pre><p><code>malloc</code> recebe diretamente a quantidade de bytes a alocar e retorna o endereço do byte inicial. Combiná-lo com <code>sizeof(tipo)</code> evita erro de cálculo, já que <code>malloc</code> não sabe qual tipo você pretende guardar ali.</p></div>
+      <div class="card"><h3>Quiz</h3><div class="quiz" data-quiz="q4">
+        <div class="q" data-answer="b"><strong>1. Sobre alocação estática x dinâmica:</strong>
+          <label><input name="q4_1" type="radio" value="a"> Na estática, o tamanho é definido em tempo de execução; na dinâmica, em tempo de compilação.</label>
+          <label><input name="q4_1" type="radio" value="b"> Na estática, tipo e tamanho são definidos antes da execução e permanecem fixos; na dinâmica, a alocação ocorre durante a execução, podendo variar em tempo real.</label>
+          <label><input name="q4_1" type="radio" value="c"> Não existe diferença prática entre as duas formas em C.</label>
+          <label><input name="q4_1" type="radio" value="d"> A alocação dinâmica sempre ocupa menos memória que a estática para os mesmos dados.</label>
+        </div>
+        <div class="q" data-answer="b"><strong>2. Sobre o operador <code>sizeof</code>:</strong>
+          <label><input name="q4_2" type="radio" value="a"> <code>sizeof(int)</code> sempre retorna exatamente 2 bytes, em qualquer compilador ou arquitetura.</label>
+          <label><input name="q4_2" type="radio" value="b"> Retorna a quantidade de bytes ocupados pelo tipo informado, funcionando tanto para tipos primitivos quanto para structs.</label>
+          <label><input name="q4_2" type="radio" value="c"> É uma função de alocação, reservando memória para o tipo informado.</label>
+          <label><input name="q4_2" type="radio" value="d"> Só pode ser usado dentro de uma chamada de <code>malloc</code>.</label>
+        </div>
+        <div class="q" data-answer="b"><strong>3. Sobre a função <code>malloc</code>:</strong>
+          <label><input name="q4_3" type="radio" value="a"> Recebe a quantidade de elementos desejados e calcula automaticamente os bytes conforme o tipo do ponteiro de retorno.</label>
+          <label><input name="q4_3" type="radio" value="b"> Recebe diretamente a quantidade de bytes a serem alocados; por isso é comum combiná-la com <code>sizeof(tipo)</code>, já que ela não sabe qual tipo você pretende armazenar.</label>
+          <label><input name="q4_3" type="radio" value="c"> Preenche automaticamente o espaço alocado com zeros, assim como <code>calloc</code>.</label>
+          <label><input name="q4_3" type="radio" value="d"> Libera a memória alocada anteriormente por <code>calloc</code>.</label>
+        </div>
+      </div><div class="btns"><button class="btn" onclick="checkQuiz('q4')">Conferir quiz</button></div><div id="q4_result" class="result"></div></div>
+      <div class="card"><h3>Prática de código</h3><p>Aloque dinamicamente, com <code>malloc</code> e <code>sizeof</code>, um vetor de 6 <code>float</code>. Preencha cada posição com <code>scanf</code> e depois imprima todos os valores.</p><textarea data-keywords="malloc,sizeof,float*,for,scanf,printf" placeholder="Seu código..."></textarea><div class="btns"><button class="btn secondary" onclick="checkKeywords(this)">Conferir estrutura</button><button class="btn secondary" onclick="toggleAnswer(this)">Ver solução</button></div><div class="answer quote"><pre><code>int main() {
+    float* notas = (float*) malloc(6 * sizeof(float));
+    for (int i = 0; i &lt; 6; i++) {
+        scanf("%f", &amp;notas[i]);
+    }
+    for (int i = 0; i &lt; 6; i++) {
+        printf("%.2f ", notas[i]);
+    }
+    return 0;
+}</code></pre></div></div>
+      <div class="checkpoint"><button class="btn good" onclick="finishLevel(4)">Concluir nível 4</button><div class="result" id="finish4"></div></div>
+    </div>
+  </section>
+
+  <!-- LEVEL 5 -->
+  <section class="level" id="level5" data-level="5">
+    <div class="levelHead"><span class="badge">Nível 5</span><h2>malloc x calloc e percorrendo serializações dinâmicas</h2><p>A diferença que mais cai em prova entre as duas funções.</p><div class="status" data-status>Bloqueado</div></div>
+    <div class="levelBody">
+      <div class="card"><h3><code>calloc</code></h3><pre><code>int main(int argc, char const *argv[]) {
+    int* p_n1 = calloc(1, sizeof(int));
+    int* p_n2 = calloc(3, sizeof(int));
+    printf("%p: %d\n", p_n1, *p_n1);
+    //Espaço Serializado
+    printf("%p: %d\n", p_n2, *p_n2);
+    p_n2++;
+    printf("%p: %d\n", p_n2, *p_n2);
+}</code></pre><p><code>void* calloc(int qty, int size)</code> escalona a quantidade de espaçamentos pela quantidade de bytes desejada, sem que o programador precise multiplicar manualmente. A diferença de comportamento em relação ao <code>malloc</code>: <code>calloc</code> preenche os espaços com zero (0).</p></div>
+      <div class="grid two">
+        <div class="card"><h3>Serialização: malloc x calloc</h3><pre><code>//Serialização estática
+float v1[10];
+
+//Serialização dinâmica com malloc
+float* v2 = (float*) malloc(10 * sizeof(float));
+
+//Serialização dinâmica com calloc
+float* v3 = (float*) calloc(10, sizeof(float));</code></pre><p><code>malloc</code> exige a multiplicação manual (bytes do tipo × quantidade); <code>calloc</code> dispensa essa conta, recebendo quantidade e tamanho separadamente.</p></div>
+        <div class="card"><h3>Percorrendo com ponteiro auxiliar</h3><pre><code>char* letras = (char*) calloc(5, sizeof(char));
+char* l = letras;
+for (int i = 0; i &lt; 5; i++) {
+    *l = 'A' + i;
+    l++;
+}
+l = letras;
+for (int i = 0; i &lt; 5; i++) {
+    printf("%p: %c\n", l, *l);
+    l++;
+}</code></pre><p class="danger quote"><b>Pegadinha:</b> o incremento acontece em um ponteiro auxiliar (<code>l</code>); <code>letras</code> nunca perde o endereço do byte inicial, essencial para depois usar <code>realloc</code> ou <code>free</code>.</p></div>
+      </div>
+      <div class="card"><h3>Quiz</h3><div class="quiz" data-quiz="q5">
+        <div class="q" data-answer="b"><strong>1. A diferença essencial entre <code>malloc</code> e <code>calloc</code> é:</strong>
+          <label><input name="q5_1" type="radio" value="a"> <code>calloc</code> é apenas um "apelido" de <code>malloc</code>, sem diferença real de comportamento.</label>
+          <label><input name="q5_1" type="radio" value="b"> <code>malloc</code> exige a quantidade total de bytes já calculada (ex.: <code>10 * sizeof(float)</code>); <code>calloc</code> recebe quantidade e tamanho separados, dispensa a multiplicação e inicializa os espaços com zero.</label>
+          <label><input name="q5_1" type="radio" value="c"> <code>calloc</code> nunca pode ser combinado com <code>sizeof</code>, apenas <code>malloc</code>.</label>
+          <label><input name="q5_1" type="radio" value="d"> <code>malloc</code> sempre inicializa a memória com zero; <code>calloc</code> deixa lixo de memória nos espaços.</label>
+        </div>
+        <div class="q" data-answer="b"><strong>2. Sobre <code>p_n2++</code> em um ponteiro <code>int*</code> retornado por <code>calloc(3, sizeof(int))</code>:</strong>
+          <label><input name="q5_2" type="radio" value="a"> Gera erro, pois ponteiros retornados por <code>calloc</code> são somente leitura.</label>
+          <label><input name="q5_2" type="radio" value="b"> Desloca o ponteiro para o próximo espaço da serialização, calculando automaticamente o deslocamento conforme o tipo apontado (<code>int</code>).</label>
+          <label><input name="q5_2" type="radio" value="c"> Soma exatamente 1 byte ao endereço, independentemente do tipo do ponteiro.</label>
+          <label><input name="q5_2" type="radio" value="d"> Faz com que o restante do array fique inacessível para sempre, mesmo guardando o endereço original em outra variável.</label>
+        </div>
+        <div class="q" data-answer="b"><strong>3. Sobre perder a referência ao endereço inicial de um bloco alocado dinamicamente:</strong>
+          <label><input name="q5_3" type="radio" value="a"> Não é um problema, pois o sistema operacional rastreia e recupera automaticamente qualquer bloco alocado.</label>
+          <label><input name="q5_3" type="radio" value="b"> Impede a liberação correta desse bloco com <code>free</code> posteriormente, podendo causar vazamento de memória.</label>
+          <label><input name="q5_3" type="radio" value="c"> Apenas impede a leitura; a escrita nesse bloco continua funcionando normalmente depois.</label>
+          <label><input name="q5_3" type="radio" value="d"> É impedido em tempo de compilação pelo próprio compilador C.</label>
+        </div>
+      </div><div class="btns"><button class="btn" onclick="checkQuiz('q5')">Conferir quiz</button></div><div id="q5_result" class="result"></div></div>
+      <div class="card"><h3>Prática de código</h3><p>Aloque com <code>calloc</code> um vetor de 5 <code>int</code>. Usando um ponteiro auxiliar (sem perder o ponteiro original), preencha cada posição com o quadrado do seu índice (0, 1, 4, 9, 16) e depois imprima tudo a partir do ponteiro original.</p><textarea data-keywords="calloc,sizeof,int*,for,printf" placeholder="Seu código..."></textarea><div class="btns"><button class="btn secondary" onclick="checkKeywords(this)">Conferir estrutura</button><button class="btn secondary" onclick="toggleAnswer(this)">Ver solução</button></div><div class="answer quote"><pre><code>int main() {
+    int* base = (int*) calloc(5, sizeof(int));
+    int* aux = base;
+    for (int i = 0; i &lt; 5; i++) {
+        *aux = i * i;
+        aux++;
+    }
+    for (int i = 0; i &lt; 5; i++) {
+        printf("%d ", base[i]);
+    }
+    return 0;
+}</code></pre></div></div>
+      <div class="checkpoint"><button class="btn good" onclick="finishLevel(5)">Concluir nível 5</button><div class="result" id="finish5"></div></div>
+    </div>
+  </section>
+
+  <!-- LEVEL 6 -->
+  <section class="level" id="level6" data-level="6">
+    <div class="levelHead"><span class="badge">Nível 6</span><h2>realloc, free e alocação dinâmica de registros</h2><p>Expandir, liberar e armazenar structs sem tamanho fixo.</p><div class="status" data-status>Bloqueado</div></div>
+    <div class="levelBody">
+      <div class="grid two">
+        <div class="card"><h3><code>realloc</code></h3><pre><code>int main(int argc, char const *argv[]) {
+    int* array = (int*) calloc(5, sizeof(int));
+    for (int i = 0; i &lt; 5; i++) {
+        array[i] = i * 10;
+    }
+    int* novoArray = (int*) realloc(array, 10 * sizeof(int));
+    for (int i = 5; i &lt; 10; i++) {
+        array[i] = i * 30;
+    }
+    for (int i = 0; i &lt; 10; i++) {
+        printf("%d: %d\n", i, array[i]);
+    }
+}</code></pre><p><code>void* realloc(void* pointer, int new_size)</code> expande (ou reduz) um bloco já alocado. A realocação pode trocar o bloco de lugar na memória — por isso o retorno de <code>realloc</code> deve ser sempre capturado, pois o endereço antigo pode deixar de ser válido.</p></div>
+        <div class="card"><h3><code>free</code></h3><pre><code>int main(int argc, char const *argv[]) {
+    int* array = (int*) calloc(5, sizeof(int));
+    for (int i = 0; i &lt; 5; i++) {
+        array[i] = i * 10;
+        printf("%d\n", array[i]);
+    }
+    free(array);
+}</code></pre><p><code>free(void* pointer)</code> marca o espaço como disponível para reutilização. Os valores antigos podem, na prática, ainda estar fisicamente presentes até serem sobrescritos — não conte com isso para "apagar" dados sensíveis.</p></div>
+      </div>
+      <div class="card"><h3>Alocação dinâmica de registros (structs)</h3><pre><code>typedef struct {
+    int ra;
+    char nome[255];
+} Aluno;
+
+Aluno *incluirAluno(Aluno *alunos, int *qtde) {
+    int index = *qtde;
+    *qtde += 1;
+    Aluno *aux = (Aluno*) realloc(alunos, *qtde * sizeof(Aluno));
+
+    printf("[aluno %d]\n", *qtde);
+    printf("Informe o RA: ");
+    scanf("%d", &amp;aux[index].ra);
+    printf("Informe o Nome: ");
+    fflush(stdin);
+    scanf("%[^\n]", aux[index].nome);
+    return aux;
+}</code></pre><p>As funções de alocação permitem armazenar todos os registros necessários de forma dinâmica, sem definir de antemão a quantidade máxima de alunos. Repare que <code>*qtde * sizeof(Aluno)</code> é o <b>tamanho total</b> desejado após a operação, não apenas o tamanho do elemento novo.</p></div>
+      <div class="card"><h3>Quiz</h3><div class="quiz" data-quiz="q6">
+        <div class="q" data-answer="b"><strong>1. Sobre a função <code>realloc</code>:</strong>
+          <label><input name="q6_1" type="radio" value="a"> Sempre mantém o bloco de memória exatamente no mesmo endereço original, apenas expandindo seu tamanho.</label>
+          <label><input name="q6_1" type="radio" value="b"> Pode manter o bloco no mesmo endereço ou movê-lo para outro local; por isso é importante sempre capturar o retorno da função, já que o endereço antigo pode deixar de ser válido.</label>
+          <label><input name="q6_1" type="radio" value="c"> Serve apenas para diminuir o tamanho de um bloco já alocado, nunca para aumentar.</label>
+          <label><input name="q6_1" type="radio" value="d"> Substitui a necessidade de <code>free</code>, liberando automaticamente a memória antiga.</label>
+        </div>
+        <div class="q" data-answer="b"><strong>2. Sobre a função <code>free</code>:</strong>
+          <label><input name="q6_2" type="radio" value="a"> Apaga imediatamente os valores da memória, garantindo que fiquem inacessíveis a partir da chamada.</label>
+          <label><input name="q6_2" type="radio" value="b"> Marca o espaço como disponível para reutilização, mas os valores antigos podem, na prática, ainda estar presentes até serem sobrescritos.</label>
+          <label><input name="q6_2" type="radio" value="c"> Só pode ser usada em blocos alocados com <code>calloc</code>, nunca com <code>malloc</code>.</label>
+          <label><input name="q6_2" type="radio" value="d"> Nunca causa problema alguma, mesmo se chamada duas vezes seguidas no mesmo ponteiro.</label>
+        </div>
+        <div class="q" data-answer="b"><strong>3. Em <code>realloc(alunos, *qtde * sizeof(Aluno))</code>, o segundo parâmetro deve representar:</strong>
+          <label><input name="q6_3" type="radio" value="a"> Apenas a quantidade de elementos novos adicionados nesta chamada, e não o total acumulado.</label>
+          <label><input name="q6_3" type="radio" value="b"> O tamanho total desejado para o bloco após a operação: quantidade total de elementos multiplicada pelo tamanho de cada um.</label>
+          <label><input name="q6_3" type="radio" value="c"> Não é necessário multiplicar por <code>sizeof(Aluno)</code>, pois <code>realloc</code> assume o tamanho do último <code>malloc</code>.</label>
+          <label><input name="q6_3" type="radio" value="d"> Passar um ponteiro para struct em <code>realloc</code> é proibido; funciona apenas com tipos primitivos.</label>
+        </div>
+      </div><div class="btns"><button class="btn" onclick="checkQuiz('q6')">Conferir quiz</button></div><div id="q6_result" class="result"></div></div>
+      <div class="card"><h3>Prática de código</h3><p>Escreva uma função <code>int* adicionarValor(int* vetor, int* tamanho, int novoValor)</code> que use <code>realloc</code> para aumentar o vetor em 1 posição, insira <code>novoValor</code> no final, atualize <code>*tamanho</code> e retorne o novo ponteiro.</p><textarea data-keywords="int*,adicionarValor,realloc,sizeof,tamanho,return" placeholder="Seu código..."></textarea><div class="btns"><button class="btn secondary" onclick="checkKeywords(this)">Conferir estrutura</button><button class="btn secondary" onclick="toggleAnswer(this)">Ver solução</button></div><div class="answer quote"><pre><code>int* adicionarValor(int* vetor, int* tamanho, int novoValor) {
+    *tamanho += 1;
+    int* novo = (int*) realloc(vetor, *tamanho * sizeof(int));
+    novo[*tamanho - 1] = novoValor;
+    return novo;
+}
+
+int main() {
+    int tamanho = 0;
+    int* vetor = (int*) malloc(0);
+    vetor = adicionarValor(vetor, &amp;tamanho, 10);
+    vetor = adicionarValor(vetor, &amp;tamanho, 20);
+    for (int i = 0; i &lt; tamanho; i++) printf("%d ", vetor[i]);
+    free(vetor);
+    return 0;
+}</code></pre></div></div>
+      <div class="checkpoint"><button class="btn good" onclick="finishLevel(6)">Concluir nível 6</button><div class="result" id="finish6"></div></div>
+    </div>
+  </section>
+
+  <!-- LEVEL 7 -->
+  <section class="level" id="level7" data-level="7">
+    <div class="levelHead"><span class="badge">Nível 7</span><h2>Recursividade: definição, caso base e caso recursivo</h2><p>A lógica por trás de uma função que chama a si mesma.</p><div class="status" data-status>Bloqueado</div></div>
+    <div class="levelBody">
+      <div class="split">
+        <div class="card"><h3>Explicação lúdica</h3><p>Imagine bonecas russas (matryoshka): você abre uma boneca e encontra outra igual, um pouco menor, dentro. Você repete o gesto de "abrir" até chegar na menorzinha, que não abre mais — esse é o ponto de parada. Depois disso, você vai "fechando" as bonecas de volta, uma a uma, na ordem inversa de como abriu.</p></div>
+        <div class="card"><h3>Explicação técnica</h3><p>Recursividade é a capacidade de um algoritmo se auto invocar, chamando a si próprio circularmente, empilhando chamadas até encontrar uma solução trivial que permita o desempilhamento. Segundo Laureano (2008), é o processo de definir algo em termos de si mesmo (definição circular). Fora da computação, aparece em ancestralidade/hereditariedade e em desenhos fractais.</p></div>
+      </div>
+      <div class="card"><h3>Estratégia: dividir para conquistar</h3><p>Muitos problemas são resolvidos quebrando-os em partes menores (estratégia "dividir para conquistar"), repetindo esse processo até alcançar a menor parte resolvível do problema.</p><table><tr><th>Termo do slide</th><th>Significado técnico</th></tr><tr><td>Caso recursivo</td><td>O ato de dividir o problema em partes menores, chamando a função novamente com uma entrada mais próxima do fim.</td></tr><tr><td>Caso base (ou caso trivial)</td><td>A solução da menor parte do problema — a condição que interrompe as chamadas recursivas.</td></tr></table></div>
+      <div class="grid two">
+        <div class="card"><h3>Vantagens</h3><ul class="checklist"><li>Simplicidade de implementação</li><li>Facilidade de compreensão</li><li>Solução elegante</li><li>Divisão e conquista</li><li>Manutenção simplificada</li></ul></div>
+        <div class="card"><h3>Desvantagens</h3><ul class="checklist"><li>Desempenho (mais custosa que versões iterativas equivalentes)</li><li>Possibilidade de estouro de pilha de chamada</li><li>Dificuldades na depuração</li><li>Limitações da linguagem/ambiente de execução</li></ul><p class="danger quote"><b>Pegadinha:</b> recursividade nem sempre é mais eficiente — em muitos casos é justamente o contrário, e a escolha depende do ambiente de execução do programa.</p></div>
+      </div>
+      <div class="card"><h3>Quiz</h3><div class="quiz" data-quiz="q7">
+        <div class="q" data-answer="b"><strong>1. A definição de recursividade apresentada no material é:</strong>
+          <label><input name="q7_1" type="radio" value="a"> A capacidade de um algoritmo executar em paralelo múltiplas instâncias de si mesmo simultaneamente.</label>
+          <label><input name="q7_1" type="radio" value="b"> A capacidade de um algoritmo se auto invocar, empilhando chamadas até encontrar uma solução trivial que permita o desempilhamento.</label>
+          <label><input name="q7_1" type="radio" value="c"> Um sinônimo de iteração, sendo qualquer laço <code>for</code> ou <code>while</code> considerado recursivo.</label>
+          <label><input name="q7_1" type="radio" value="d"> A técnica de dividir um programa em múltiplos arquivos-fonte.</label>
+        </div>
+        <div class="q" data-answer="b"><strong>2. Sobre caso base e caso recursivo:</strong>
+          <label><input name="q7_2" type="radio" value="a"> O caso recursivo é sempre resolvido antes do caso base, pois é ele quem inicia a pilha de chamadas.</label>
+          <label><input name="q7_2" type="radio" value="b"> O caso base é a condição que interrompe as chamadas recursivas e é resolvido primeiro no desempilhamento; o caso recursivo quebra o problema em partes menores.</label>
+          <label><input name="q7_2" type="radio" value="c"> Caso base e caso recursivo são termos equivalentes, usados apenas por autores diferentes.</label>
+          <label><input name="q7_2" type="radio" value="d"> Um algoritmo recursivo funciona corretamente sem nenhum caso base, desde que use apenas parâmetros <code>float</code>.</label>
+        </div>
+        <div class="q" data-answer="b"><strong>3. Sobre vantagens e desvantagens da recursividade:</strong>
+          <label><input name="q7_3" type="radio" value="a"> Algoritmos recursivos são sempre mais eficientes em desempenho do que suas versões iterativas equivalentes.</label>
+          <label><input name="q7_3" type="radio" value="b"> A recursividade pode trazer simplicidade e elegância na solução, mas também riscos como maior custo de desempenho e possibilidade de estouro de pilha em chamadas muito profundas.</label>
+          <label><input name="q7_3" type="radio" value="c"> A recursividade é uma técnica exclusiva de linguagens orientadas a objetos, indisponível em C.</label>
+          <label><input name="q7_3" type="radio" value="d"> Um algoritmo recursivo nunca pode ser reescrito de forma iterativa.</label>
+        </div>
+      </div><div class="btns"><button class="btn" onclick="checkQuiz('q7')">Conferir quiz</button></div><div id="q7_result" class="result"></div></div>
+      <div class="card"><h3>Prática de código</h3><p>Implemente <code>int soma(int n)</code> de forma recursiva, retornando a soma de todos os inteiros de 1 até <code>n</code>. Identifique claramente o caso base e o caso recursivo com comentários.</p><textarea data-keywords="int,soma,if,return,caso base,caso recursivo" placeholder="Seu código..."></textarea><div class="btns"><button class="btn secondary" onclick="checkKeywords(this)">Conferir estrutura</button><button class="btn secondary" onclick="toggleAnswer(this)">Ver solução</button></div><div class="answer quote"><pre><code>int soma(int n) {
+    if (n &lt;= 1) {
+        // caso base
+        return n;
+    }
+    // caso recursivo
+    return n + soma(n - 1);
+}
+
+int main() {
+    printf("%d", soma(5)); // 15
+    return 0;
+}</code></pre></div></div>
+      <div class="checkpoint"><button class="btn good" onclick="finishLevel(7)">Concluir nível 7</button><div class="result" id="finish7"></div></div>
+    </div>
+  </section>
+
+  <!-- LEVEL 8 -->
+  <section class="level" id="level8" data-level="8">
+    <div class="levelHead"><span class="badge">Nível 8</span><h2>Call Stack, Fatorial, Fibonacci e Stack Overflow</h2><p>Os clássicos que toda prova de recursividade cobra.</p><div class="status" data-status>Bloqueado</div></div>
+    <div class="levelBody">
+      <div class="card"><h3>Call Stack (LIFO)</h3><p>Todo programa, recursivo ou não, controla o empilhamento de chamadas de procedimentos e funções na <b>Call Stack</b>: um espaço de memória que segue o princípio da <b>PILHA (LIFO — Last In, First Out)</b>. O último método chamado é o primeiro a ser resolvido. Em rotinas recursivas, o empilhamento garante que os casos base sejam resolvidos antes dos casos recursivos "de fora". Se a recursão for muito profunda, pode ocorrer <b>Stack Overflow</b> (estouro de pilha).</p></div>
+      <div class="grid two">
+        <div class="card"><h3>Fatorial (caso clássico)</h3><pre><code>int calcularFatorial(int numero) {
+    if (numero &lt;= 1) {
+        // caso base
+        return 1;
+    }
+    // caso recursivo
+    return numero * calcularFatorial(numero-1);
+}
+
+int main(int argc, char const *argv[]) {
+    int numero = 5;
+    int resultado = calcularFatorial(5);
+    printf("%d! = %d", numero, resultado); //120
+}</code></pre><p>Empilhamento: <code>calcularFatorial(5)</code> chama <code>(4)</code>, que chama <code>(3)</code>... até <code>(1)</code> (caso base, primeiro a resolver). O desempilhamento multiplica de volta: <code>1 → 2 → 6 → 24 → 120</code>.</p></div>
+        <div class="card"><h3>Fibonacci (caso clássico)</h3><pre><code>void imprimeFibonnaci(int nTermos, int termoA, int termoB) {
+    //Caso base
+    if (nTermos &lt;= 0) {
+        return;
+    }
+    //Caso recursivo
+    printf("%d\n", termoA);
+    imprimeFibonnaci(nTermos-1, termoB, termoA + termoB);
+}
+
+int main(int argc, char const *argv[]) {
+    imprimeFibonnaci(10, 1, 1);
+    // 1, 1, 2, 3, 5, 8, 13, 21, 34, 55
+}</code></pre><p>A cada chamada, <code>nTermos</code> diminui em direção ao caso base, <code>termoB</code> vira o novo <code>termoA</code>, e <code>termoA + termoB</code> vira o novo <code>termoB</code>.</p></div>
+      </div>
+      <div class="card"><h3>Recursividade em Estrutura de Dados</h3><p>Muitas soluções de Estrutura de Dados são implementadas com algoritmos recursivos, sendo comum para percorrer estruturas dinamizadas (serializadas na memória): estruturas dinâmicas (pilhas, filas, listas), estruturas encadeadas, manipulação de estruturas aninhadas, ordenação, pesquisa e busca em profundidade (DFS).</p></div>
+      <div class="card"><h3>Quiz</h3><div class="quiz" data-quiz="q8">
+        <div class="q" data-answer="b"><strong>1. Sobre a Call Stack:</strong>
+          <label><input name="q8_1" type="radio" value="a"> Funciona no princípio FIFO (First In, First Out), processando primeiro a chamada mais antiga.</label>
+          <label><input name="q8_1" type="radio" value="b"> Funciona no princípio LIFO (Last In, First Out): a última função empilhada é a primeira a ser resolvida e desempilhada.</label>
+          <label><input name="q8_1" type="radio" value="c"> É exclusiva de algoritmos recursivos; funções não recursivas não geram empilhamento de chamadas.</label>
+          <label><input name="q8_1" type="radio" value="d"> O estouro de pilha ocorre apenas dentro de laços <code>for</code>, nunca em funções recursivas.</label>
+        </div>
+        <div class="q" data-answer="b"><strong>2. Em <code>calcularFatorial(5)</code>, qual chamada é a primeira a ser <b>resolvida</b> (retornar um valor)?</strong>
+          <label><input name="q8_2" type="radio" value="a"> <code>calcularFatorial(5)</code>, pois foi a primeira a ser chamada.</label>
+          <label><input name="q8_2" type="radio" value="b"> <code>calcularFatorial(1)</code>, pois é o caso base: a última empilhada e a primeira desempilhada/resolvida.</label>
+          <label><input name="q8_2" type="radio" value="c"> Todas são resolvidas simultaneamente, já que a recursão é paralela por natureza.</label>
+          <label><input name="q8_2" type="radio" value="d"> <code>calcularFatorial(4)</code>, por estar no meio da sequência de chamadas.</label>
+        </div>
+        <div class="q" data-answer="b"><strong>3. Na função Fibonacci apresentada, a cada chamada recursiva:</strong>
+          <label><input name="q8_3" type="radio" value="a"> <code>nTermos</code> aumenta, enquanto <code>termoA</code> e <code>termoB</code> permanecem fixos.</label>
+          <label><input name="q8_3" type="radio" value="b"> <code>nTermos</code> diminui em direção ao caso base, <code>termoB</code> assume o valor anterior de <code>termoA</code>, e o novo <code>termoB</code> vira <code>termoA + termoB</code>.</label>
+          <label><input name="q8_3" type="radio" value="c"> O caso base é acionado quando <code>termoA</code> se torna maior que <code>termoB</code>.</label>
+          <label><input name="q8_3" type="radio" value="d"> A função apresentada não possui caso base, sendo uma recursão infinita proposital.</label>
+        </div>
+      </div><div class="btns"><button class="btn" onclick="checkQuiz('q8')">Conferir quiz</button></div><div id="q8_result" class="result"></div></div>
+      <div class="card"><h3>Prática de código</h3><p>Implemente <code>void contagemRegressiva(int n)</code> de forma recursiva: imprima de <code>n</code> até 1 (um número por linha) e, ao final, imprima "Fim!". Marque claramente o caso base.</p><textarea data-keywords="void,contagemRegressiva,if,printf,caso base,return" placeholder="Seu código..."></textarea><div class="btns"><button class="btn secondary" onclick="checkKeywords(this)">Conferir estrutura</button><button class="btn secondary" onclick="toggleAnswer(this)">Ver solução</button></div><div class="answer quote"><pre><code>void contagemRegressiva(int n) {
+    if (n &lt;= 0) {
+        // caso base
+        printf("Fim!\n");
+        return;
+    }
+    printf("%d\n", n);
+    // caso recursivo
+    contagemRegressiva(n - 1);
+}</code></pre></div></div>
+      <div class="checkpoint"><button class="btn good" onclick="finishLevel(8)">Concluir nível 8</button><div class="result" id="finish8"></div></div>
+    </div>
+  </section>
+
+  <!-- LEVEL 9 -->
+  <section class="level" id="level9" data-level="9">
+    <div class="levelHead"><span class="badge">Nível 9</span><h2>Integração: ponteiros, alocação dinâmica e recursão juntos</h2><p>O que costuma cair combinado nas próximas unidades da disciplina.</p><div class="status" data-status>Bloqueado</div></div>
+    <div class="levelBody">
+      <div class="card"><h3>Somando um vetor alocado dinamicamente, de forma recursiva</h3><pre><code>int somaRecursiva(int* vetor, int tamanho) {
+    if (tamanho &lt;= 0) {
+        // caso base
+        return 0;
+    }
+    // caso recursivo: pega o primeiro elemento e avança o ponteiro
+    return *vetor + somaRecursiva(vetor + 1, tamanho - 1);
+}
+
+int main(int argc, char const *argv[]) {
+    int* numeros = (int*) malloc(5 * sizeof(int));
+    for (int i = 0; i &lt; 5; i++) numeros[i] = i + 1;
+
+    printf("Soma: %d", somaRecursiva(numeros, 5)); // 15
+    free(numeros);
+    return 0;
+}</code></pre><p>Aqui os três assuntos se encontram: o vetor nasce de <b>alocação dinâmica</b> (<code>malloc</code>), é percorrido por <b>aritmética de ponteiros</b> (<code>vetor + 1</code>, sem usar índices) e o percurso é conduzido por <b>recursividade</b> (caso base quando <code>tamanho</code> chega a zero).</p></div>
+      <div class="grid two">
+        <div class="mini"><h3>Por que <code>vetor + 1</code> funciona</h3><p>Como <code>vetor</code> é <code>int*</code>, somar 1 desloca o ponteiro exatamente o tamanho de um <code>int</code> em bytes — a mesma lógica de <code>p_array++</code> vista no Nível 3, só que expressa como soma em vez de incremento.</p></div>
+        <div class="mini"><h3>Cuidado com a profundidade</h3><p>Cada chamada recursiva empilha um novo quadro na Call Stack. Um vetor alocado dinamicamente pode ter milhões de elementos (a heap comporta isso), mas percorrê-lo com recursão profunda pode estourar a pilha — heap e call stack são regiões de memória diferentes, com limites diferentes.</p></div>
+      </div>
+      <div class="card"><h3>Quiz</h3><div class="quiz" data-quiz="q9">
+        <div class="q" data-answer="a"><strong>1. Sobre <code>vetor + 1</code> na função <code>somaRecursiva</code>:</strong>
+          <label><input name="q9_1" type="radio" value="a"> Avança o ponteiro para o próximo elemento do array, calculando automaticamente o deslocamento em bytes conforme o tipo apontado (<code>int</code>), sem multiplicação manual.</label>
+          <label><input name="q9_1" type="radio" value="b"> Sempre soma exatamente 1 byte ao endereço, independentemente do tipo apontado.</label>
+          <label><input name="q9_1" type="radio" value="c"> A cada chamada recursiva, o array original é duplicado na memória, dobrando o uso de RAM.</label>
+          <label><input name="q9_1" type="radio" value="d"> O parâmetro <code>tamanho - 1</code> é opcional; a função funcionaria de forma idêntica sem ele.</label>
+        </div>
+        <div class="q" data-answer="b"><strong>2. Sobre a integração entre ponteiros, alocação dinâmica e recursividade:</strong>
+          <label><input name="q9_2" type="radio" value="a"> Estruturas alocadas com <code>malloc</code>/<code>calloc</code>/<code>realloc</code> não podem ser percorridas por funções recursivas, apenas por laços <code>for</code>/<code>while</code>.</label>
+          <label><input name="q9_2" type="radio" value="b"> Ponteiros permitem que uma função recursiva avance por uma estrutura alocada dinamicamente sem usar índices, apenas incrementando (ou somando) o próprio ponteiro a cada chamada.</label>
+          <label><input name="q9_2" type="radio" value="c"> A recursividade substitui completamente a necessidade de ponteiros na manipulação de arrays.</label>
+          <label><input name="q9_2" type="radio" value="d"> <code>sizeof</code> deixa de ser necessário em qualquer código que use recursividade.</label>
+        </div>
+        <div class="q" data-answer="b"><strong>3. Um risco relevante ao combinar recursão profunda com um array grande alocado dinamicamente é:</strong>
+          <label><input name="q9_3" type="radio" value="a"> O risco de vazamento de memória desaparece quando se usa recursão, pois o compilador libera automaticamente ao final de cada chamada.</label>
+          <label><input name="q9_3" type="radio" value="b"> Uma recursão muito profunda (ex.: percorrer um array enorme elemento a elemento) pode causar estouro de pilha, mesmo que os dados estejam corretamente alocados na heap.</label>
+          <label><input name="q9_3" type="radio" value="c"> Ponteiros nunca podem ser passados como parâmetro em funções recursivas.</label>
+          <label><input name="q9_3" type="radio" value="d"> A Call Stack e a memória alocada dinamicamente (heap) são exatamente a mesma região de memória.</label>
+        </div>
+      </div><div class="btns"><button class="btn" onclick="checkQuiz('q9')">Conferir quiz</button></div><div id="q9_result" class="result"></div></div>
+      <div class="card"><h3>Prática de código integradora</h3><p>Implemente <code>int contarPares(int* vetor, int tamanho)</code> de forma recursiva, contando quantos elementos pares existem em um vetor <b>alocado dinamicamente</b> com <code>calloc</code>. Use aritmética de ponteiro (<code>vetor + 1</code>) em vez de índices.</p><textarea data-keywords="int,contarPares,if,return,calloc,vetor + 1,%2" placeholder="Seu código..."></textarea><div class="btns"><button class="btn secondary" onclick="checkKeywords(this)">Conferir estrutura</button><button class="btn secondary" onclick="toggleAnswer(this)">Ver solução</button></div><div class="answer quote"><pre><code>int contarPares(int* vetor, int tamanho) {
+    if (tamanho &lt;= 0) {
+        return 0;
+    }
+    int atual = (*vetor % 2 == 0) ? 1 : 0;
+    return atual + contarPares(vetor + 1, tamanho - 1);
+}
+
+int main() {
+    int* numeros = (int*) calloc(6, sizeof(int));
+    for (int i = 0; i &lt; 6; i++) numeros[i] = i;
+    printf("Pares: %d", contarPares(numeros, 6));
+    free(numeros);
+    return 0;
+}</code></pre></div></div>
+      <div class="checkpoint"><button class="btn good" onclick="finishLevel(9)">Concluir nível 9</button><div class="result" id="finish9"></div></div>
+    </div>
+  </section>
+
+  <!-- LEVEL 10 - FINAL -->
+  <section class="level" id="level10" data-level="10">
+    <div class="levelHead"><span class="badge">Prova Final</span><h2>Simulado: Ponteiros, Alocação Dinâmica e Recursividade</h2><p>Faça sem consultar. Depois use o relatório para saber o que revisar.</p><div class="status" data-status>Bloqueado</div></div>
+    <div class="levelBody">
+      <div class="card"><h3>Parte A - Múltipla escolha</h3><div class="quiz" data-quiz="final">
+        <div class="q" data-topic="Endereçamento" data-answer="c"><strong>1. O endereço real, segundo o material, é:</strong>
+          <label><input name="f_1" type="radio" value="a"> Idêntico ao endereço virtual, apenas com outro nome.</label>
+          <label><input name="f_1" type="radio" value="b"> Gerado exclusivamente pelo compilador, sem participação do hardware.</label>
+          <label><input name="f_1" type="radio" value="c"> Convertido para endereço absoluto por prefixação feita pelo hardware, existindo um endereço real para cada byte.</label>
+          <label><input name="f_1" type="radio" value="d"> Utilizado apenas por microcontroladores, nunca por computadores comuns.</label>
+        </div>
+        <div class="q" data-topic="Ponteiros" data-answer="d"><strong>2. Em <code>scanf("%d", p_valor);</code>, sendo <code>p_valor</code> um <code>int*</code> válido, não se usa <code>&amp;</code> porque:</strong>
+          <label><input name="f_2" type="radio" value="a"> <code>scanf</code> nunca trabalha com endereços de memória.</label>
+          <label><input name="f_2" type="radio" value="b"> <code>%d</code> ignora qualquer ponteiro recebido como argumento.</label>
+          <label><input name="f_2" type="radio" value="c"> <code>p_valor</code> é uma constante nomeada pelo pré-processador.</label>
+          <label><input name="f_2" type="radio" value="d"> O ponteiro já contém o endereço da variável; usar <code>&amp;</code> apontaria para o endereço do próprio ponteiro.</label>
+        </div>
+        <div class="q" data-topic="Ponteiros" data-answer="a"><strong>3. Sobre <code>p_aluno-&gt;RA</code> e <code>(*p_aluno).RA</code>:</strong>
+          <label><input name="f_3" type="radio" value="a"> São equivalentes: <code>-&gt;</code> combina a desreferenciação do ponteiro com o acesso ao atributo.</label>
+          <label><input name="f_3" type="radio" value="b"> <code>-&gt;</code> só existe para ponteiros de vetores, nunca de structs.</label>
+          <label><input name="f_3" type="radio" value="c"> <code>(*p_aluno).RA</code> não compila em C.</label>
+          <label><input name="f_3" type="radio" value="d"> <code>-&gt;</code> substitui a necessidade do ponteiro apontar para memória válida.</label>
+        </div>
+        <div class="q" data-topic="Alocação" data-answer="b"><strong>4. A principal diferença de comportamento entre <code>malloc</code> e <code>calloc</code> é:</strong>
+          <label><input name="f_4" type="radio" value="a"> <code>malloc</code> aceita structs; <code>calloc</code> só aceita tipos primitivos.</label>
+          <label><input name="f_4" type="radio" value="b"> <code>calloc</code> inicializa os espaços com zero e recebe quantidade/tamanho separados; <code>malloc</code> recebe o total de bytes já calculado.</label>
+          <label><input name="f_4" type="radio" value="c"> <code>malloc</code> libera memória; <code>calloc</code> aloca memória.</label>
+          <label><input name="f_4" type="radio" value="d"> Não há diferença de comportamento entre as duas funções.</label>
+        </div>
+        <div class="q" data-topic="Alocação" data-answer="b"><strong>5. Sobre <code>realloc</code>:</strong>
+          <label><input name="f_5" type="radio" value="a"> Sempre preserva o endereço original do bloco alocado.</label>
+          <label><input name="f_5" type="radio" value="b"> Pode mover o bloco para outro endereço; o retorno da função deve sempre ser capturado.</label>
+          <label><input name="f_5" type="radio" value="c"> Não pode ser usada com ponteiros para struct.</label>
+          <label><input name="f_5" type="radio" value="d"> Dispensa o uso de <code>sizeof</code> no cálculo do novo tamanho.</label>
+        </div>
+        <div class="q" data-topic="Recursividade" data-answer="c"><strong>6. Caso base, em um algoritmo recursivo, é:</strong>
+          <label><input name="f_6" type="radio" value="a"> A primeira chamada da função, feita a partir do <code>main</code>.</label>
+          <label><input name="f_6" type="radio" value="b"> Qualquer chamada que utilize um laço <code>for</code> internamente.</label>
+          <label><input name="f_6" type="radio" value="c"> A condição que interrompe as chamadas recursivas, resolvendo a menor parte do problema.</label>
+          <label><input name="f_6" type="radio" value="d"> Uma chamada opcional, dispensável se a função for bem escrita.</label>
+        </div>
+        <div class="q" data-topic="Recursividade" data-answer="b"><strong>7. A Call Stack funciona segundo o princípio:</strong>
+          <label><input name="f_7" type="radio" value="a"> FIFO, resolvendo primeiro a chamada mais antiga.</label>
+          <label><input name="f_7" type="radio" value="b"> LIFO, resolvendo primeiro a última chamada empilhada.</label>
+          <label><input name="f_7" type="radio" value="c"> Aleatório, sem ordem definida entre as chamadas.</label>
+          <label><input name="f_7" type="radio" value="d"> Round-robin, alternando entre chamadas em intervalos fixos.</label>
+        </div>
+        <div class="q" data-topic="Integração" data-answer="d"><strong>8. Em <code>somaRecursiva(vetor + 1, tamanho - 1)</code>, sobre um vetor alocado com <code>malloc</code>:</strong>
+          <label><input name="f_8" type="radio" value="a"> <code>vetor + 1</code> só funciona se o vetor for estático, nunca se for alocado dinamicamente.</label>
+          <label><input name="f_8" type="radio" value="b"> A recursão nesse caso nunca pode estourar a pilha, pois os dados estão na heap.</label>
+          <label><input name="f_8" type="radio" value="c"> <code>tamanho - 1</code> é decorativo e pode ser removido sem alterar o comportamento.</label>
+          <label><input name="f_8" type="radio" value="d"> <code>vetor + 1</code> avança o ponteiro para o próximo elemento, e <code>tamanho - 1</code> aproxima a chamada do caso base.</label>
+        </div>
+      </div><div class="btns"><button class="btn" onclick="checkFinal()">Corrigir parte objetiva</button></div><div id="final_result" class="result"></div></div>
+      <div class="card"><h3>Parte B - Discursivas</h3><p>Responda com linguagem técnica. Depois me mande no chat para eu corrigir de verdade.</p><ol class="checklist">
+        <li>Explique a diferença entre endereço absoluto, real e virtual.</li>
+        <li>Explique por que <code>scanf("%d", p_valor)</code> funciona sem <code>&amp;</code>, sendo <code>p_valor</code> já um ponteiro válido.</li>
+        <li>Explique a diferença de comportamento entre <code>malloc</code> e <code>calloc</code>.</li>
+        <li>Explique por que o retorno de <code>realloc</code> deve sempre ser capturado em uma variável.</li>
+        <li>Explique a diferença entre caso base e caso recursivo, usando o exemplo do fatorial.</li>
+        <li>Explique por que a Call Stack segue o princípio LIFO e como isso se relaciona ao Stack Overflow.</li>
+        <li>Explique como ponteiros, alocação dinâmica e recursividade podem ser combinados para percorrer um vetor sem usar índices.</li>
+      </ol><textarea placeholder="Faça suas discursivas aqui..."></textarea></div>
+      <div class="card"><h3>Parte C - Desafio de código final</h3><p>Crie um programa que:</p><ol class="checklist">
+        <li>Declare <code>typedef struct</code> <code>Produto</code> com <code>codigo</code>, <code>nome[100]</code> e <code>preco</code>.</li>
+        <li>Aloque dinamicamente um vetor de <code>Produto</code> com <code>malloc</code>, começando vazio.</li>
+        <li>Crie uma função que use <code>realloc</code> para adicionar um novo produto ao vetor.</li>
+        <li>Crie uma função <b>recursiva</b> que receba o vetor (via ponteiro), o tamanho, e retorne a soma total dos preços, avançando com aritmética de ponteiro.</li>
+        <li>Use um ponteiro para struct (<code>Produto*</code>) e o operador <code>-&gt;</code> para imprimir os dados de cada produto.</li>
+        <li>Libere toda a memória alocada com <code>free</code> ao final.</li>
+      </ol><textarea data-keywords="typedef,struct,Produto,malloc,realloc,-&gt;,if,return,free" placeholder="Código final..."></textarea><div class="btns"><button class="btn secondary" onclick="checkKeywords(this)">Conferir estrutura mínima</button></div></div>
+      <div class="checkpoint"><h3>Plano de estudo pós-prova</h3><div id="studyPlan" class="result">Corrija a parte objetiva para gerar um diagnóstico inicial. Depois mande suas discursivas no chat para correção detalhada.</div></div>
+    </div>
+  </section>
+
+  <div class="footer"><p>Treinamento local. Seu progresso fica salvo neste navegador.</p><button class="btn secondary" onclick="resetProgress()">Resetar progresso</button></div>
+</div>
+
+<script>
+const totalLevels=10;
+let unlocked = Number(localStorage.getItem('rpr_unlocked_v1') || 1);
+let completed = JSON.parse(localStorage.getItem('rpr_completed_v1') || '{}');
+const FORM_STORAGE_KEY='rpr_training_answers_v1';
+let formState=loadFormState();
+const titles = ['Endereçamento e memória','Ponteiros: base','Ponteiros aplicados','Estática x dinâmica','malloc x calloc','realloc, free e registros','Recursividade: conceito','Call Stack e clássicos','Integração completa','Prova final'];
+function loadFormState(){try{return JSON.parse(localStorage.getItem(FORM_STORAGE_KEY))||{radios:{},texts:[],quizzes:{},answers:[]};}catch(e){return{radios:{},texts:[],quizzes:{},answers:[]};}}
+function saveFormState(){
+  const radios={};document.querySelectorAll('input[type="radio"]:checked').forEach(input=>radios[input.name]=input.value);
+  const texts=[...document.querySelectorAll('textarea')].map(ta=>({value:ta.value,passed:ta.dataset.passed==='true'}));
+  const quizzes={};document.querySelectorAll('.quiz[data-quiz]').forEach(q=>quizzes[q.dataset.quiz]=q.dataset.passed==='true');
+  const answers=[...document.querySelectorAll('.answer')].map(a=>a.classList.contains('show'));
+  formState={radios,texts,quizzes,answers};
+  try{localStorage.setItem(FORM_STORAGE_KEY,JSON.stringify(formState));}catch(e){}
+}
+function restoreFormState(){
+  Object.entries(formState.radios||{}).forEach(([name,value])=>{const input=document.querySelector(`input[type="radio"][name="${CSS.escape(name)}"][value="${CSS.escape(value)}"]`);if(input)input.checked=true;});
+  document.querySelectorAll('textarea').forEach((ta,i)=>{const saved=(formState.texts||[])[i];if(saved){ta.value=saved.value||'';if(saved.passed){ta.dataset.passed='true';ta.classList.add('taskDone');}}});
+  document.querySelectorAll('.quiz[data-quiz]').forEach(q=>{if((formState.quizzes||{})[q.dataset.quiz]){q.dataset.passed='true';q.querySelectorAll('.q').forEach(item=>{const checked=item.querySelector('input:checked');if(checked&&checked.value===item.dataset.answer)item.classList.add('taskDone');});}});
+  document.querySelectorAll('.answer').forEach((a,i)=>a.classList.toggle('show',!!(formState.answers||[])[i]));
+}
+function buildToc(){const toc=document.getElementById('toc');toc.innerHTML='';for(let i=1;i<=totalLevels;i++){const b=document.createElement('button');b.textContent=(i<10?'Nível '+i:'Prova')+' · '+titles[i-1];b.onclick=()=>{if(i<=unlocked){localStorage.setItem('rpr_last_level_v1',i);document.getElementById('level'+i).scrollIntoView({behavior:'smooth'});}}; if(i>unlocked)b.classList.add('locked'); toc.appendChild(b);}}
+function updateLocks(){for(let i=1;i<=totalLevels;i++){const sec=document.getElementById('level'+i); const body=sec.querySelector('.levelBody'); const st=sec.querySelector('[data-status]'); if(i<=unlocked){body.style.display='block'; st.textContent= completed[i]?'Concluído':'Desbloqueado'; st.className='status '+(completed[i]?'ok':'');}else{body.style.display='none'; st.textContent='Bloqueado 🔒';} } let done=Object.keys(completed).length; let pct=Math.round((done/(totalLevels-1))*100); if(pct>100)pct=100; document.getElementById('globalBar').style.width=pct+'%'; document.getElementById('globalStatus').textContent=pct+'%'; buildToc();}
+function checkQuiz(id){const quiz=document.querySelector('[data-quiz="'+id+'"]'); const qs=[...quiz.querySelectorAll('.q')]; let correct=0; let missed=[]; qs.forEach((q,idx)=>{const ans=q.dataset.answer; const checked=q.querySelector('input:checked'); q.classList.remove('taskDone'); if(checked && checked.value===ans){correct++; q.classList.add('taskDone');} else {missed.push(idx+1);} }); const res=document.getElementById(id+'_result'); const ok=correct===qs.length; quiz.dataset.passed=ok?'true':'false'; res.innerHTML= ok?`<span class="ok">Perfeito: ${correct}/${qs.length}. Quiz concluído e salvo.</span>`:`<span class="bad">Você fez ${correct}/${qs.length}. Revise as questões: ${missed.join(', ')}.</span>`; saveFormState(); return ok;}
+function normalize(s){return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
+function checkKeywords(btn){const card=btn.closest('.card'); const ta=card.querySelector('textarea[data-keywords]'); const kws=ta.dataset.keywords.split(',').map(k=>normalize(k.trim())).filter(Boolean); const text=normalize(ta.value); const missing=kws.filter(k=>!text.includes(k)); let res=card.querySelector('.kwres'); if(!res){res=document.createElement('div'); res.className='result kwres'; card.appendChild(res);} if(missing.length===0){ta.dataset.passed='true'; ta.classList.add('taskDone'); res.innerHTML='<span class="ok">Estrutura mínima ok. Resposta e progresso salvos.</span>';} else {ta.dataset.passed='false'; res.innerHTML='<span class="bad">Ainda faltam ideias/palavras-chave: '+missing.join(', ')+'</span>';}saveFormState();}
+function toggleAnswer(btn){const ans=btn.closest('.card').querySelector('.answer'); if(ans){ans.classList.toggle('show');saveFormState();}}
+function levelChecks(level){const sec=document.getElementById('level'+level); const quizzes=[...sec.querySelectorAll('.quiz')]; const quizOk=quizzes.every(q=>q.dataset.passed==='true'); const tas=[...sec.querySelectorAll('textarea[data-keywords]')]; const taOk=tas.every(t=>t.dataset.passed==='true'); return {quizOk,taOk,ok:quizOk&&taOk};}
+function finishLevel(level){const res=document.getElementById('finish'+level); const ck=levelChecks(level); if(!ck.ok){res.innerHTML='<span class="bad">Ainda não: conclua '+(!ck.quizOk?'o quiz ':'')+(!ck.taOk?'e a prática de código':'')+'.</span>';saveFormState();return;} completed[level]=true; localStorage.setItem('rpr_completed_v1',JSON.stringify(completed)); if(unlocked<level+1){unlocked=level+1; localStorage.setItem('rpr_unlocked_v1',unlocked);} localStorage.setItem('rpr_last_level_v1',Math.min(level+1,totalLevels));res.innerHTML='<span class="ok">Nível concluído e salvo. Próximo nível desbloqueado.</span>'; saveFormState();updateLocks();}
+function checkFinal(){const ok=checkQuiz('final'); const quiz=document.querySelector('[data-quiz="final"]'); const qs=[...quiz.querySelectorAll('.q')]; const misses={}; qs.forEach(q=>{const checked=q.querySelector('input:checked'); if(!checked || checked.value!==q.dataset.answer){const t=q.dataset.topic||'Geral'; misses[t]=(misses[t]||0)+1;}}); const plan=document.getElementById('studyPlan'); if(Object.keys(misses).length===0){plan.innerHTML='<span class="ok">Objetiva perfeita. Agora foque nas discursivas e no desafio de código final, porque é onde a prova costuma revelar lacunas reais.</span>';} else {let items=Object.entries(misses).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<li><b>${k}</b>: ${v} erro(s). Revise o nível correspondente e refaça as práticas.</li>`).join(''); plan.innerHTML='<b>Prioridade de revisão:</b><ul>'+items+'</ul>';} }
+function resetProgress(){if(!confirm('Apagar todo o progresso, respostas e rascunhos deste treinamento?'))return;localStorage.removeItem('rpr_unlocked_v1');localStorage.removeItem('rpr_completed_v1');localStorage.removeItem(FORM_STORAGE_KEY);localStorage.removeItem('rpr_last_level_v1');location.reload();}
+let saveTimer;document.addEventListener('input',()=>{clearTimeout(saveTimer);saveTimer=setTimeout(saveFormState,250);});document.addEventListener('change',saveFormState);window.addEventListener('pagehide',saveFormState);
+updateLocks();restoreFormState();
+</script>
+</body>
+</html>
