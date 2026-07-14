@@ -64,6 +64,7 @@
       text-transform: uppercase; letter-spacing: .08em; margin-bottom: 38px;
     }
     .card:nth-child(2) .card-tag { color: var(--green); background: rgba(85,217,159,.1); border-color: rgba(85,217,159,.2); }
+    .card:nth-child(3) .card-tag { color: #f8c072; background: rgba(245,158,11,.12); border-color: rgba(245,158,11,.22); }
     h3 { position: relative; font-size: clamp(1.65rem, 3vw, 2.15rem); line-height: 1.08; letter-spacing: -.035em; margin-bottom: 16px; }
     .card p { position: relative; color: var(--muted); line-height: 1.65; font-size: .93rem; max-width: 440px; }
     .topics { display: flex; flex-wrap: wrap; gap: 7px; margin: 24px 0 30px; }
@@ -75,6 +76,7 @@
       transition: filter .2s ease;
     }
     .card:nth-child(2) .button { background: #237c59; }
+    .card:nth-child(3) .button { background: #b5730f; }
     .button:focus-visible { outline: 3px solid var(--text); outline-offset: 3px; }
     .button b { font-size: 1.15rem; }
     footer { color: #777384; text-align: center; font-size: .75rem; padding: 54px 0 18px; }
@@ -149,7 +151,7 @@
     <section>
       <div class="section-top">
         <h2>Meus treinamentos</h2>
-        <span class="count">2 treinamentos disponíveis</span>
+        <span class="count">3 treinamentos disponíveis</span>
       </div>
 
       <div class="grid">
@@ -173,6 +175,18 @@
             <span>Declarar</span><span>Ler</span><span>Calcular</span><span>Comparar</span><span>Repetir</span>
           </div>
           <a class="button" href="treinamento_esqueleto_codigo_C_estrutura_dados_SEM_RECARREGAR.html">
+            Abrir treinamento <b>→</b>
+          </a>
+        </article>
+
+        <article class="card" data-number="03">
+          <span class="card-tag">Treinamento completo</span>
+          <h3>Ponteiros, Alocação Dinâmica e Recursividade</h3>
+          <p>Treinamento gamificado para dominar endereçamento de memória, malloc/calloc/realloc/free e algoritmos recursivos, com pegadinhas de prova.</p>
+          <div class="topics">
+            <span>Ponteiros</span><span>Endereçamento</span><span>malloc/calloc</span><span>realloc/free</span><span>Recursividade</span>
+          </div>
+          <a class="button" href="treinamento_ponteiros_alocacao_recursividade.html">
             Abrir treinamento <b>→</b>
           </a>
         </article>
