@@ -1,0 +1,4 @@
+# Test tooling artifacts (Playwright / npm) — not part of the project
+node_modules/
+package.json
+package-lock.json
